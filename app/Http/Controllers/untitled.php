@@ -1,4 +1,4 @@
-
+<?php
     public function Register(Request $request){
 	    $rules = [
 	        'phone' => 'required',
@@ -119,6 +119,35 @@
             $result['statusCode'] = 200;
             $result['message'] = "success,sms send!";
             $result['result'] = [];
+        }
+        return response()->json($result, $result['statusCode']);
+    }
+    public function CheckCode(Request $request){
+        $rules = [
+            'code' => 'required',
+            'phone' => 'required',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }
+        else {
+            $user = Client::where('phone',$request['phone'])
+                ->where('code',$request['code'])
+                ->orderBy('id','DESC')
+                ->first();
+            if ($user!=null){               
+                $result['statusCode'] = 200;
+                $result['message'] = "success";
+                $result['result'] = $user;
+            }
+            else{
+                $result['statusCode'] = 404;
+                $result['message'] = "not found";
+                $result['result'] = [];
+            }
         }
         return response()->json($result, $result['statusCode']);
     }
