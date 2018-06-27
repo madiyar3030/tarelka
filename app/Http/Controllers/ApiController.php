@@ -48,7 +48,7 @@ class ApiController extends Controller
             }
             else{
             	//send_sms($request['phone'], "Tarelka. Ваш пароль:".$code);
-                $result['statusCode'] = 200;
+                $result['statusCode'] = 201;
                 $result['message'] = 'User has been registered';
                 $result['result'] = $this->GetUser($user->id);
             }
@@ -246,11 +246,8 @@ class ApiController extends Controller
                     $this->deletefile($user->avatar);
                     $user->avatar = $this->uploadfile($request['image']);
                 }
-                if (isset($request['first_name'])) {
-                    $user->first_name = $request['first_name'];
-                }
-                if (isset($request['last_name'])) {
-                    $user->last_name = $request['last_name'];
+                if (isset($request['fio'])) {
+                    $user->fio = $request['fio'];
                 }
                 if (isset($request['weight'])) {
                     $user->weight = $request['weight'];
@@ -568,15 +565,10 @@ class ApiController extends Controller
             }else{
                 $item['avatar'] = '';
             }
-            if(isset($user->first_name)){
-                $item['first_name'] = $user->first_name;
+            if(isset($user->fio)){
+                $item['fio'] = $user->fio;
             }else{
-                $item['first_name'] = '';
-            }
-            if(isset($user->last_name)){
-                $item['last_name'] = $user->last_name;
-            }else{
-                $item['last_name'] = '';
+                $item['fio'] = '';
             }
             if(isset($user->weight)){
                 $item['weight'] = $user->weight.' кг';
