@@ -548,14 +548,41 @@ class ApiController extends Controller
     		$item['id'] = $user->id;
     		$item['token'] = $user->token;
             $item['phone'] = $user->phone;
-    		// $item['code'] = $user->code;
-    		$item['status'] = $user->status;
-    		$item['avatar'] = asset($user->avatar);
-    		$item['first_name'] = $user->first_name;
-    		$item['last_name'] = $user->last_name;
-    		$item['weight'] = $user->weight.' кг';
-            $item['age'] = $user->age.' лет';
-    		$item['height'] = $user->height.' см';
+            if(isset($user->status)){
+        		$item['status'] = $user->status;
+            }else{
+                $item['status'] = '';
+            }
+            if(isset($user->avatar)){
+                $item['avatar'] = asset($user->avatar);
+            }else{
+                $item['avatar'] = '';
+            }
+            if(isset($user->first_name)){
+                $item['first_name'] = $user->first_name;
+            }else{
+                $item['first_name'] = '';
+            }
+            if(isset($user->last_name)){
+                $item['last_name'] = $user->last_name;
+            }else{
+                $item['last_name'] = '';
+            }
+            if(isset($user->weight)){
+                $item['weight'] = $user->weight.' кг';
+            }else{
+                $item['weight'] = '';
+            }
+            if(isset($user->age)){
+                $item['age'] = $user->age.' лет';
+            }else{
+                $item['age'] = '';
+            }
+            if(isset($user->height)){
+                $item['height'] = $user->height.' см';
+            }else{
+                $item['height'] = '';
+            }
             $goals = Goalclient::where('client_id', $user->id)->get(); 
             foreach ($goals as $goal) {
                 $item['goals'][] = Goal::find($goal->goal_id)->title;
