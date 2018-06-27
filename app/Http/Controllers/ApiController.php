@@ -265,6 +265,57 @@ class ApiController extends Controller
         }
         return response()->json($result, $result['statusCode']);
     }
+    public function GetProfile(Request $request){
+        $rules = [
+            'token' => 'required|exists:clients,token',
+            'image' => 'file|mimes:jpeg,png,jpg|max:2048',
+            'first_name' => '',
+            'last_name' => '',
+            'weight' => 'integer',
+            'age' => 'integer',
+            'height' => 'integer',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }else {
+            $user = Client::where('token', $request['token'])->first();
+            if ($user != null) {
+                if (isset($request['image'])) {
+                    $this->deletefile($user->avatar);
+                    $user->avatar = $this->uploadfile($request['image']);
+                }
+                if (isset($request['first_name'])) {
+                    $user->first_name = $request['first_name'];
+                }
+                if (isset($request['last_name'])) {
+                    $user->last_name = $request['last_name'];
+                }
+                if (isset($request['weight'])) {
+                    $user->weight = $request['weight'];
+                }
+                if (isset($request['age'])) {
+                    $user->age = $request['age'];
+                }
+                if (isset($request['height'])) {
+                    $user->height = $request['height'];
+                }
+                $user->save();
+
+                $result['statusCode']= 200;
+                $result['message']= 'Success!';
+                $result['result']= $this->GetUser($user->id);
+            }
+            else{
+                $result['statusCode'] = 404;
+                $result['message'] = 'User not found';
+                $result['result'] = null;
+            }
+        }
+        return response()->json($result, $result['statusCode']);
+    }
 
     public function Chat(Request $request){
         $rules = [
