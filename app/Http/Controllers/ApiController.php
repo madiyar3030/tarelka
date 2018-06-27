@@ -225,47 +225,6 @@ class ApiController extends Controller
     }
 
     public function Profile(Request $request){
-    	$rules = [
-            'token' => 'required|exists:clients,token',
-            'image' => 'file|mimes:jpeg,png,jpg|max:2048',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'weight' => 'required|integer',
-            'age' => 'required|integer',
-            'height' => 'required|integer',
-        ];
-        $validator = $this->validator($request->all(),$rules);
-        if($validator->fails()) {
-            $result['statusCode']= 400;
-            $result['message']= $validator->errors();
-            $result['result']= [];
-        }else {
-            $user = Client::where('token', $request['token'])->first();
-            if ($user != null) {
-            	if (isset($request['image'])) {
-            		$this->deletefile($user->avatar);
-            		$user->avatar = $this->uploadfile($request['image']);
-            	}
-        		$user->first_name = $request['first_name'];
-        		$user->last_name = $request['last_name'];
-        		$user->weight = $request['weight'];
-                $user->age = $request['age'];
-        		$user->height = $request['height'];
-            	$user->save();
-
-                $result['statusCode']= 200;
-                $result['message']= 'Success!';
-                $result['result']= $this->GetUser($user->id);
-            }
-            else{
-                $result['statusCode'] = 404;
-                $result['message'] = 'User not found';
-                $result['result'] = null;
-            }
-        }
-        return response()->json($result, $result['statusCode']);
-    }
-    public function GetProfile(Request $request){
         $rules = [
             'token' => 'required|exists:clients,token',
             'image' => 'file|mimes:jpeg,png,jpg|max:2048',
