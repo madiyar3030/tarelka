@@ -35,24 +35,22 @@ class ApiController extends Controller
             $result['result']= [];
         }else {
             $user = Client::where('phone', $request['phone'])->first();
-            $code = rand(1000,9999);
             if ($user == null) {
             	$client = new Client();
             	$client->phone = $request['phone'];
             	$client->token = md5($request['phone'].'tarelka');
-                $client->code = $code;
             	$client->save();
             	//send_sms($request['phone'], "Tarelka. Ваш пароль:".$code);
 
                 $result['statusCode']= 200;
                 $result['message']= 'Success!';
-                $result['result']= $client;
+                $result['result']= $this->GetUser($client->id);
             }
             else{
             	//send_sms($request['phone'], "Tarelka. Ваш пароль:".$code);
                 $result['statusCode'] = 200;
                 $result['message'] = 'User has been registered';
-                $result['result'] = $user;
+                $result['result'] = $this->GetUser($user->id);
             }
         }
         return response()->json($result, $result['statusCode']);
@@ -234,6 +232,7 @@ class ApiController extends Controller
             'last_name' => 'required',
             'weight' => 'required|integer',
             'age' => 'required|integer',
+            'height' => 'required|integer',
         ];
         $validator = $this->validator($request->all(),$rules);
         if($validator->fails()) {
@@ -250,7 +249,8 @@ class ApiController extends Controller
         		$user->first_name = $request['first_name'];
         		$user->last_name = $request['last_name'];
         		$user->weight = $request['weight'];
-        		$user->age = $request['age'];
+                $user->age = $request['age'];
+        		$user->height = $request['height'];
             	$user->save();
 
                 $result['statusCode']= 200;
@@ -554,7 +554,8 @@ class ApiController extends Controller
     		$item['first_name'] = $user->first_name;
     		$item['last_name'] = $user->last_name;
     		$item['weight'] = $user->weight.' кг';
-    		$item['age'] = $user->age.' лет';
+            $item['age'] = $user->age.' лет';
+    		$item['height'] = $user->height.' см';
             $goals = Goalclient::where('client_id', $user->id)->get(); 
             foreach ($goals as $goal) {
                 $item['goals'][] = Goal::find($goal->goal_id)->title;
