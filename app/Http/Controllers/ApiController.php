@@ -195,6 +195,10 @@ class ApiController extends Controller
             foreach ($tasks as $task) {
                 $temp['id'] = $task->id;
                 $temp['title'] = $task->title;
+                $temp['text'] = $task->text;
+                if (isset($task->image)) {
+                    $temp['image'] = asset($task->image);
+                }
                 $temp['updated_at'] = $task->updated_at;
                 $temp['created_at'] = $task->created_at;
 
@@ -208,21 +212,21 @@ class ApiController extends Controller
         }
         return response()->json($result, $result['statusCode']);
     }
-    public function Post($id){
-        $post = Post::find($id);
+    // public function Post($id){
+    //     $post = Post::find($id);
 
-        if  (count($post) != 0){
-            $result['statusCode'] = 200;
-            $result['message'] = 'success';
-            $result['result'] = $post;
-        }
-        else{
-            $result['statusCode'] = 404;
-            $result['message'] = 'Post not found';
-            $result['result'] = [];
-        }
-        return response()->json($result, $result['statusCode']);
-    }
+    //     if  (count($post) != 0){
+    //         $result['statusCode'] = 200;
+    //         $result['message'] = 'success';
+    //         $result['result'] = $post;
+    //     }
+    //     else{
+    //         $result['statusCode'] = 404;
+    //         $result['message'] = 'Post not found';
+    //         $result['result'] = [];
+    //     }
+    //     return response()->json($result, $result['statusCode']);
+    // }
 
     public function Profile(Request $request){
         $rules = [

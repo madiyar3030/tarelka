@@ -14,22 +14,22 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 
     <!-- Bootstrap Core Css -->
-    <link href="plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="{{asset('public/plugins/bootstrap/css/bootstrap.css')}}" rel="stylesheet">
 
     <!-- Waves Effect Css -->
-    <link href="plugins/node-waves/waves.css" rel="stylesheet" />
+    <link href="{{asset('public/plugins/node-waves/waves.css')}}" rel="stylesheet" />
 
     <!-- Animation Css -->
-    <link href="plugins/animate-css/animate.css" rel="stylesheet" />
+    <link href="{{asset('public/plugins/animate-css/animate.css')}}" rel="stylesheet" />
 
     <!-- Morris Chart Css-->
-    <link href="plugins/morrisjs/morris.css" rel="stylesheet" />
+    <link href="{{asset('public/plugins/morrisjs/morris.css')}}" rel="stylesheet" />
 
     <!-- Custom Css -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="{{asset('public/css/style.css')}}" rel="stylesheet">
 
     <!-- AdminBSB Themes. You can choose a theme from css/themes instead of get all themes -->
-    <link href="css/themes/all-themes.css" rel="stylesheet" />
+    <link href="{{asset('public/css/themes/all-themes.css')}}" rel="stylesheet" />
 </head>
 
 <body class="theme-red">
@@ -276,7 +276,7 @@
             <!-- User Info -->
             <div class="user-info">
                 <div class="image">
-                    <img src="images/user.png" width="48" height="48" alt="User" />
+                    <img src="{{asset('public/images/user.png')}}" width="48" height="48" alt="User" />
                 </div>
                 <div class="info-container">
                     <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</div>
@@ -295,7 +295,7 @@
                 <ul class="list">
                     <li class="header">Главная навигация</li>
                     <li class="@yield('active_index')">
-                        <a href="">
+                        <a href="{{route('Index')}}">
                             <i class="material-icons">home</i>
                             <span>Главная</span>
                         </a>
@@ -313,21 +313,21 @@
                         </a>
                         <ul class="ml-menu">
                             <li class="@yield('active_meals')">
-                                <a href="">Блюда</a>
+                                <a href="{{route('Meals')}}">Блюда</a>
                             </li>
                             <li class="@yield('active_goals')">
-                                <a href="">Цели</a>
+                                <a href="{{route('Goals')}}">Цели</a>
                             </li>
                         </ul>
                     </li>
                     <li class="@yield('active_quiz')">
-                        <a href="javascript:void(0);" class="">
+                        <a href="{{route('Quiz')}}" class="">
                             <i class="material-icons">assignment</i>
                             <span>Экзамены</span>
                         </a>
                     </li>  
                     <li class="@yield('active_task')">
-                        <a href="javascript:void(0);" class="">
+                        <a href="{{route('Tasks')}}" class="">
                             <i class="material-icons">assessment</i>
                             <span>Задание</span>
                         </a>
@@ -493,49 +493,49 @@
     </section>
 
     @yield('content')
-    @yield('js')
 
     <!-- Jquery Core Js -->
-    <script src="plugins/jquery/jquery.min.js"></script>
+    <script src="{{asset('public/plugins/jquery/jquery.min.js')}}"></script>
 
     <!-- Bootstrap Core Js -->
-    <script src="plugins/bootstrap/js/bootstrap.js"></script>
+    <script src="{{asset('public/plugins/bootstrap/js/bootstrap.js')}}"></script>
 
     <!-- Select Plugin Js -->
-    <script src="plugins/bootstrap-select/js/bootstrap-select.js"></script>
+    <script src="{{asset('public/plugins/bootstrap-select/js/bootstrap-select.js')}}"></script>
 
     <!-- Slimscroll Plugin Js -->
-    <script src="plugins/jquery-slimscroll/jquery.slimscroll.js"></script>
+    <script src="{{asset('public/plugins/jquery-slimscroll/jquery.slimscroll.js')}}"></script>
 
     <!-- Waves Effect Plugin Js -->
-    <script src="plugins/node-waves/waves.js"></script>
+    <script src="{{asset('public/plugins/node-waves/waves.js')}}"></script>
 
     <!-- Jquery CountTo Plugin Js -->
-    <script src="plugins/jquery-countto/jquery.countTo.js"></script>
+    <script src="{{asset('public/plugins/jquery-countto/jquery.countTo.js')}}"></script>
 
     <!-- Morris Plugin Js -->
-    <script src="plugins/raphael/raphael.min.js"></script>
-    <script src="plugins/morrisjs/morris.js"></script>
+    <script src="{{asset('public/plugins/raphael/raphael.min.js')}}"></script>
+    <script src="{{asset('public/plugins/morrisjs/morris.js')}}"></script>
 
     <!-- ChartJs -->
-    <script src="plugins/chartjs/Chart.bundle.js"></script>
+    <script src="{{asset('public/plugins/chartjs/Chart.bundle.js')}}"></script>
 
     <!-- Flot Charts Plugin Js -->
-    <script src="plugins/flot-charts/jquery.flot.js"></script>
-    <script src="plugins/flot-charts/jquery.flot.resize.js"></script>
-    <script src="plugins/flot-charts/jquery.flot.pie.js"></script>
-    <script src="plugins/flot-charts/jquery.flot.categories.js"></script>
-    <script src="plugins/flot-charts/jquery.flot.time.js"></script>
+    <script src="{{asset('public/plugins/flot-charts/jquery.flot.js')}}"></script>
+    <script src="{{asset('public/plugins/flot-charts/jquery.flot.resize.js')}}"></script>
+    <script src="{{asset('public/plugins/flot-charts/jquery.flot.pie.js')}}"></script>
+    <script src="{{asset('public/plugins/flot-charts/jquery.flot.categories.js')}}"></script>
+    <script src="{{asset('public/plugins/flot-charts/jquery.flot.time.js')}}"></script>
 
     <!-- Sparkline Chart Plugin Js -->
-    <script src="plugins/jquery-sparkline/jquery.sparkline.js"></script>
+    <script src="{{asset('public/plugins/jquery-sparkline/jquery.sparkline.js')}}"></script>
 
     <!-- Custom Js -->
-    <script src="js/admin.js"></script>
+    <script src="{{asset('public/js/admin.js')}}"></script>
     <!-- <script src="js/pages/index.js"></script> -->
 
     <!-- Demo Js -->
-    <script src="js/demo.js"></script>
+    <script src="{{asset('public/js/demo.js')}}"></script>
+    @yield('js')
 </body>
 
 </html>

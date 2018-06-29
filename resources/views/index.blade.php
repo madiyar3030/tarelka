@@ -2,7 +2,7 @@
 @section('active_index', 'active')
 @section('title', 'Главная страница')
 @section('content')
-<section class="content">
+    <section class="content">
         <div class="container-fluid">
             <div class="block-header">
                 <h2>Чаты</h2>
