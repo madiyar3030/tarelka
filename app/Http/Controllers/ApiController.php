@@ -298,21 +298,21 @@ class ApiController extends Controller
                 ->offset($offset)
                 ->get();
             if (count($chats) != 0) { 
-                    $result['result']['count_pages'] = $pages;
-                    $result['result']['count_data'] = $count;
-                    $result['result']['offset'] = $offset;
-                    $result['result']['limit'] = $limit;
-                    $result['result']['current_page'] = (int)$request['page'];
-                    $next_page = null;
-                    $prev_page = null;
-                    if ($request->page < $pages){
-                        $next_page = url("/api/chats?token=$request->token&page=".($request->page + 1));
-                    }
-                    if ($request->page > 0){
-                        $prev_page = url("/api/chats?token=$request->token&page=".($request->page - 1));
-                    }
-                    $result['result']['next_page'] = $next_page;
-                    $result['result']['prev_page'] = $prev_page;               
+                $result['result']['count_pages'] = $pages;
+                $result['result']['count_data'] = $count;
+                $result['result']['offset'] = $offset;
+                $result['result']['limit'] = $limit;
+                $result['result']['current_page'] = (int)$request['page'];
+                $next_page = null;
+                $prev_page = null;
+                if ($request->page < $pages){
+                    $next_page = url("/api/chat?token=$request->token&page=".($request->page + 1));
+                }
+                if ($request->page > 0){
+                    $prev_page = url("/api/chat?token=$request->token&page=".($request->page - 1));
+                }
+                $result['result']['next_page'] = $next_page;
+                $result['result']['prev_page'] = $prev_page;               
                 foreach ($chats as $chat) {
                     $chat->readed = 1;
                     $chat->save();
@@ -325,58 +325,6 @@ class ApiController extends Controller
                 $result['statusCode'] = 404;
                 $result['message'] = 'Chats not found';
                 $result['result'] = null;
-            }
-        }
-        return response()->json($result, $result['statusCode']);
-    }
-    public function Products(Request $request){
-        $rules = [
-            'page' => 'required',
-        ];
-        $validator = $this->validator($request->all(),$rules);
-        if($validator->fails()) {
-            $result['statusCode']= 400;
-            $result['message']= $validator->errors();
-            $result['result']= [];
-        }
-        else {
-
-            $count = DB::table('tasks')->count();
-            $limit = 20;
-            $offset = $limit * $request['page'];
-            $pages = (int)ceil($count/$limit) - 1;
-
-            $products = DB::table('products')
-                ->where('sub_cat_id',$request['sub_cat_id'])
-                ->limit($limit)
-                ->offset($offset)
-                ->get();
-            if (count($products) != 0){
-                $result['statusCode'] = 200;
-                $result['message'] = "success";
-
-                $result['result']['count_pages'] = $pages;
-                $result['result']['count_data'] = $count;
-                $result['result']['offset'] = $offset;
-                $result['result']['limit'] = $limit;
-                $result['result']['current_page'] = (int)$request['page'];
-                $next_page = null;
-                $prev_page = null;
-                if ($request->page < $pages){
-                    $next_page = url("/api/products?token=$request->token&sub_cat_id=$request->sub_cat_id&page=".($request->page + 1));
-                }
-                if ($request->page > 0){
-                    $prev_page = url("/api/products?token=$request->token&sub_cat_id=$request->sub_cat_id&page=".($request->page - 1));
-                }
-                $result['result']['next_page'] = $next_page;
-                $result['result']['prev_page'] = $prev_page;
-                $result['result']['products'] = $products;
-            }
-            else{
-                $result['statusCode'] = 404;
-                $result['message'] = "products not found";
-                $result['result'] = [];
-
             }
         }
         return response()->json($result, $result['statusCode']);
