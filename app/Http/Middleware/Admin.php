@@ -15,10 +15,10 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        if (session()->get('admin') == 1) {
+        if (session()->get('vK68TF23TfYKYDBZSCC9') == 1) {
             return $next($request);
         }else{
-            return 'error';
+            return redirect()->route('Login')->with('message', 'Вы не авторизованы!!!');
         }
     }
 }

@@ -228,8 +228,6 @@ class ApiController extends Controller
         $rules = [
             'token' => 'required|exists:clients,token',
             'image' => 'file|mimes:jpeg,png,jpg|max:2048',
-            'first_name' => '',
-            'last_name' => '',
             'weight' => 'integer',
             'age' => 'integer',
             'height' => 'integer',
@@ -275,6 +273,7 @@ class ApiController extends Controller
 
     public function Chat(Request $request){
         $rules = [
+            'page' => 'required',
             'token' => 'required|exists:clients,token',
         ];
         $validator = $this->validator($request->all(),$rules);
@@ -283,16 +282,41 @@ class ApiController extends Controller
             $result['message']= $validator->errors();
             $result['result']= [];
         }else {
-            $chats = Chat::where('to_u', $request['token'])
+            $count = DB::table('chats')
+                ->where('to_u', $request['token'])
+                ->orWhere('from_u', $request['token'])
                 ->where('deleted', 0)
-                ->orderBy('sended_date', 'DESC')
-                ->orderBy('sended_time', 'DESC')
+                ->count();
+            $limit = 15;
+            $offset = $limit * $request['page'];
+            $pages = (int)ceil($count/$limit) - 1;
+            $chats = Chat::where('to_u', $request['token'])
+                ->orWhere('from_u', $request['token'])
+                ->where('deleted', 0)
+                ->orderBy('created_at', 'ASC')
+                ->limit($limit)
+                ->offset($offset)
                 ->get();
-            if (count($chats) != 0) {
+            if (count($chats) != 0) { 
+                    $result['result']['count_pages'] = $pages;
+                    $result['result']['count_data'] = $count;
+                    $result['result']['offset'] = $offset;
+                    $result['result']['limit'] = $limit;
+                    $result['result']['current_page'] = (int)$request['page'];
+                    $next_page = null;
+                    $prev_page = null;
+                    if ($request->page < $pages){
+                        $next_page = url("/api/chats?token=$request->token&page=".($request->page + 1));
+                    }
+                    if ($request->page > 0){
+                        $prev_page = url("/api/chats?token=$request->token&page=".($request->page - 1));
+                    }
+                    $result['result']['next_page'] = $next_page;
+                    $result['result']['prev_page'] = $prev_page;               
                 foreach ($chats as $chat) {
                     $chat->readed = 1;
                     $chat->save();
-                    $result['result'][] = $this->GetChat($chat->id);
+                    $result['result']['chats'][] = $this->GetChat($chat->id);
                 }
                 $result['statusCode']= 200;
                 $result['message']= 'Success!';
@@ -305,11 +329,63 @@ class ApiController extends Controller
         }
         return response()->json($result, $result['statusCode']);
     }
+    public function Products(Request $request){
+        $rules = [
+            'page' => 'required',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }
+        else {
+
+            $count = DB::table('tasks')->count();
+            $limit = 20;
+            $offset = $limit * $request['page'];
+            $pages = (int)ceil($count/$limit) - 1;
+
+            $products = DB::table('products')
+                ->where('sub_cat_id',$request['sub_cat_id'])
+                ->limit($limit)
+                ->offset($offset)
+                ->get();
+            if (count($products) != 0){
+                $result['statusCode'] = 200;
+                $result['message'] = "success";
+
+                $result['result']['count_pages'] = $pages;
+                $result['result']['count_data'] = $count;
+                $result['result']['offset'] = $offset;
+                $result['result']['limit'] = $limit;
+                $result['result']['current_page'] = (int)$request['page'];
+                $next_page = null;
+                $prev_page = null;
+                if ($request->page < $pages){
+                    $next_page = url("/api/products?token=$request->token&sub_cat_id=$request->sub_cat_id&page=".($request->page + 1));
+                }
+                if ($request->page > 0){
+                    $prev_page = url("/api/products?token=$request->token&sub_cat_id=$request->sub_cat_id&page=".($request->page - 1));
+                }
+                $result['result']['next_page'] = $next_page;
+                $result['result']['prev_page'] = $prev_page;
+                $result['result']['products'] = $products;
+            }
+            else{
+                $result['statusCode'] = 404;
+                $result['message'] = "products not found";
+                $result['result'] = [];
+
+            }
+        }
+        return response()->json($result, $result['statusCode']);
+    }
     public function SendMessage(Request $request){
         $rules = [
             'token' => 'required|exists:clients,token',
-            'message' => 'required|string',
-            'images' => 'required|array',
+            'message' => 'string',
+            'images' => 'array',
             'sended_date' => 'required|date|date_format:Y-m-d',
             'sended_time' => 'required|date_format:H:i:s',
         ];

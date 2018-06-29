@@ -12,5 +12,16 @@
 */
 
 Route::get('/', function () {
-    return view('index');
+    return view('login');
+})->name('Login');
+Route::post('auth', 'AdminController@Auth')->name('Auth');
+Route::get('/logout', 'AdminController@Logout')->name('Logout');
+Route::group(['middleware' => ['admin']], function () {
+	Route::get('/index', 'AdminController@Index')->name('Index');
+	Route::get('/clients', 'AdminController@Clients')->name('Clients');
+	Route::get('/goals', 'AdminController@Goals')->name('Goals');
+	Route::get('/meals', 'AdminController@Meals')->name('Meals');
+	Route::get('/clients', 'AdminController@Clients')->name('Clients');
+	Route::get('/quiz', 'AdminController@Quiz')->name('Quiz');
+	Route::get('/tasks', 'AdminController@Tasks')->name('Tasks');
 });
