@@ -605,17 +605,17 @@ class ApiController extends Controller
                 $item['fio'] = '';
             }
             if(isset($user->weight)){
-                $item['weight'] = $user->weight.' кг';
+                $item['weight'] = $user->weight;
             }else{
                 $item['weight'] = '';
             }
             if(isset($user->age)){
-                $item['age'] = $user->age.' лет';
+                $item['age'] = $user->age;
             }else{
                 $item['age'] = '';
             }
             if(isset($user->height)){
-                $item['height'] = $user->height.' см';
+                $item['height'] = $user->height;
             }else{
                 $item['height'] = '';
             }

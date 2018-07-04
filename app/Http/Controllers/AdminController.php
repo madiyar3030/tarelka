@@ -36,8 +36,20 @@ class AdminController extends Controller
     }
     public function Index(){
     	date_default_timezone_set('Asia/Almaty');
-    	return view('index');
+        $dbchats = Chat::where('to_u', 'admin')
+            ->orderBy('sended_time', 'DESC')
+            ->orderBy('sended_date', 'DESC')
+            ->groupBy('from_u')
+            ->get();
+        $chats = [];
+        foreach ($dbchats as $item) {
+            $chats[] = $this->GetConver($item->id);
+        }
+    	return view('index', compact(['chats']));
     }    
+    public function Chat($id){
+
+    }
     public function logout(){
         session()->forget('vK68TF23TfYKYDBZSCC9');
         session()->save();
@@ -290,6 +302,24 @@ class AdminController extends Controller
         return back()->with('success_save', 'Успешно сохранено');
     } 
 
+    public function GetConver($chat_id){
+        $chat = Chat::find($chat_id);
+        if ($chat->from_u == 'admin') {
+            $item['from'] = 'admin'; 
+            $item['to'] = Client::where('token', $chat->to_u)->first()->fio;
+        }else{
+            $item['to'] = 'admin'; 
+            $item['client_id'] = Client::where('token', $chat->from_u)->first()->id;
+            $item['from'] = Client::where('token', $chat->from_u)->first()->fio;
+            $item['phone'] = Client::where('token', $chat->from_u)->first()->phone;
+            $item['avatar'] = Client::where('token', $chat->from_u)->first()->avatar;
+            $item['last_message']['message'] = Chat::where('from_u', $chat->from_u)
+                                        ->orderBy('created_at','DESC')
+                                        ->first()
+                                        ->message;
+        }
+        return $item;
+    }
 
     public static function Rate($id){
         $client = Client::find($id);
@@ -308,7 +338,6 @@ class AdminController extends Controller
         }
         return null;
     }
-
 
 
     public function uploadfile($file,$dir = 'uploads'){
