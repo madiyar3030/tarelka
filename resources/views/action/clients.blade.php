@@ -37,10 +37,22 @@
                                             <td>
                                                 <img src="{{asset($client->avatar)}}" alt="" width="150">
                                             </td>
-                                            <td>{{$client->height}} см</td>
-                                            <td>{{$client->weight}} кг</td>
-                                            <td>{{$client->age}} лет</td>
-                                            <td>7890</td>
+                                            <td>
+                                                @if(isset($client->height))
+                                                    {{$client->height}} см
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(isset($client->weight))
+                                                    {{$client->weight}} кг
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(isset($client->age))
+                                                    {{$client->age}} лет
+                                                @endif
+                                            </td>
+                                            <td>{{Helpers::Rate($client->id)}}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

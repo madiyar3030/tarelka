@@ -25,6 +25,10 @@
     <!-- Morris Chart Css-->
     <link href="{{asset('public/plugins/morrisjs/morris.css')}}" rel="stylesheet" />
 
+    <link href="{{asset('public/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css')}}" rel="stylesheet" />
+    <!-- Bootstrap Select Css -->
+    <link href="{{asset('public/plugins/bootstrap-select/css/bootstrap-select.css')}}" rel="stylesheet" />
+
     <!-- Custom Css -->
     <link href="{{asset('public/css/style.css')}}" rel="stylesheet">
 

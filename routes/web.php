@@ -34,6 +34,20 @@ Route::group(['middleware' => ['admin']], function () {
 	Route::post('save_meal', 'AdminController@SaveMeal')->name('SaveMeal');
 
 	Route::get('/quiz', 'AdminController@Quiz')->name('Quiz');
+	Route::post('add_quiz', 'AdminController@AddQuiz')->name('AddQuiz');
+	Route::get('/delete_quiz/{id}', 'AdminController@DeleteQuiz')->name('DeleteQuiz');
+	Route::get('/edit_quiz/{id}', 'AdminController@EditQuiz')->name('EditQuiz');
+	Route::post('save_quiz', 'AdminController@SaveQuiz')->name('SaveQuiz');
+
+	Route::get('/question/{id}', 'AdminController@Question')->name('Question');
+	Route::post('add_question', 'AdminController@AddQuestion')->name('AddQuestion');
+	Route::get('/delete_question/{id}', 'AdminController@DeleteQuestion')->name('DeleteQuestion');
+	Route::get('/edit_question/{id}', 'AdminController@EditQuestion')->name('EditQuestion');
+	Route::post('save_question', 'AdminController@SaveQuestion')->name('SaveQuestion');
 
 	Route::get('/tasks', 'AdminController@Tasks')->name('Tasks');
+	Route::post('add_task', 'AdminController@AddTask')->name('AddTask');
+	Route::get('/delete_task/{id}', 'AdminController@DeleteTask')->name('DeleteTask');
+	Route::get('/edit_task/{id}', 'AdminController@EditTask')->name('EditTask');
+	Route::post('save_task', 'AdminController@SaveTask')->name('SaveTask');
 });

@@ -297,7 +297,8 @@ class ApiController extends Controller
             $chats = Chat::where('to_u', $request['token'])
                 ->orWhere('from_u', $request['token'])
                 ->where('deleted', 0)
-                ->orderBy('created_at', 'ASC')
+                ->orderBy('sended_time', 'DESC')
+                ->orderBy('sended_date', 'DESC')
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
@@ -454,9 +455,14 @@ class ApiController extends Controller
             if (count($progresses)!=0) {
                 $maxpoints = intval(DB::select('SELECT SUM(max_point) AS max FROM progresses WHERE client_id = '.$user->id.' AND quiz_date = "'.$request['date'].'"')[0]->{'max'});
                 $corrects = intval(DB::select('SELECT SUM(correct_answers) AS correct FROM progresses WHERE client_id = '.$user->id.' AND quiz_date = "'.$request['date'].'"')[0]->{'correct'});
-                $perc = intval(($corrects/$maxpoints)*100);   
-                $result['result']['perc'] = $perc;   
-                $result['statusCode'] = 200;          
+                if (($maxpoints == 0)&&($corrects == 0)) {
+                    $result['result']['perc'] = 0;   
+                    $result['statusCode'] = 200;    
+                }else{
+                    $perc = intval(($corrects/$maxpoints)*100);   
+                    $result['result']['perc'] = $perc;   
+                    $result['statusCode'] = 200;   
+                }       
             }else{
                 $result['statusCode'] = 404;
                 $result['message'] = 'Progress of '.$user->first_name.' '.$user->last_name.' not found';
@@ -558,7 +564,7 @@ class ApiController extends Controller
                 $progress->quiz_id = $request['quiz_id'];
                 $progress->client_id = $user->id;
                 $progress->max_point = $request['max_answer'];
-                $progress->correct_answer = $request['correct_answer'];
+                $progress->correct_answers = $request['correct_answer'];
                 $progress->quiz_date = $request['quiz_date'];
                 $quiz = new Quizclient();
                 $quiz->quiz_id = $request['quiz_id'];
