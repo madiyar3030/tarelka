@@ -297,8 +297,7 @@ class ApiController extends Controller
             $chats = Chat::where('to_u', $request['token'])
                 ->orWhere('from_u', $request['token'])
                 ->where('deleted', 0)
-                ->orderBy('sended_time', 'DESC')
-                ->orderBy('sended_date', 'DESC')
+                ->orderBy('created_at', 'DESC')
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
@@ -658,8 +657,9 @@ class ApiController extends Controller
             }
             $item['readed'] = $chat->readed;
             $item['deleted'] = $chat->deleted;
-            $item['sended_date'] = $chat->sended_date;
-            $item['sended_time'] = $chat->sended_time;
+            $item['created_at'] = Carbon::parse($chat->created_at)->format('Y-m-d H:i:s');
+            // $item['sended_date'] = $chat->sended_date;
+            // $item['sended_time'] = $chat->sended_time;
             return $item;
         }else{
             return null;

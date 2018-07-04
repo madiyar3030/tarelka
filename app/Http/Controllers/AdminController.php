@@ -48,7 +48,13 @@ class AdminController extends Controller
     	return view('index', compact(['chats']));
     }    
     public function Chat($id){
-
+        $client = Client::find($id);
+        $chats = Chat::where('from_u', $client->token)
+                     ->orWhere('to_u', $client->token)                     
+                     ->orderBy('sended_time', 'ASC')
+                     ->orderBy('sended_date', 'ASC')
+                     ->get();
+        return view('action.chat', compact(['client', 'chats']));
     }
     public function logout(){
         session()->forget('vK68TF23TfYKYDBZSCC9');
