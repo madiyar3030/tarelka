@@ -338,8 +338,6 @@ class ApiController extends Controller
             'token' => 'required|exists:clients,token',
             'message' => 'string',
             'images' => 'array',
-            'sended_date' => 'required|date|date_format:Y-m-d',
-            'sended_time' => 'required|date_format:H:i:s',
         ];
         $validator = $this->validator($request->all(),$rules);
         if($validator->fails()) {
@@ -366,9 +364,7 @@ class ApiController extends Controller
                 }
                 if (isset($request['images'][4])) {
                     $chat->image_5 = $this->uploadfile($request['images'][4]);
-                }   
-                $chat->sended_date = $request['sended_date']; 
-                $chat->sended_time = $request['sended_time']; 
+                }         
                 $chat->save();
                 $result['result'] = $this->GetChat($chat->id);
                 $result['statusCode']= 200;
