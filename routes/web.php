@@ -19,6 +19,7 @@ Route::get('/logout', 'AdminController@Logout')->name('Logout');
 Route::group(['middleware' => ['admin']], function () {
 	Route::get('/index', 'AdminController@Index')->name('Index');
 	Route::get('/chat/{id}', 'AdminController@Chat')->name('Chat');
+	Route::post('send_message', 'AdminController@SendMessage')->name('SendMessage');
 
 	Route::get('/clients', 'AdminController@Clients')->name('Clients');
 

@@ -37,8 +37,7 @@ class AdminController extends Controller
     public function Index(){
     	date_default_timezone_set('Asia/Almaty');
         $dbchats = Chat::where('to_u', 'admin')
-            ->orderBy('sended_time', 'DESC')
-            ->orderBy('sended_date', 'DESC')
+            ->orderBy('created_at', 'DESC')
             ->groupBy('from_u')
             ->get();
         $chats = [];
@@ -51,10 +50,17 @@ class AdminController extends Controller
         $client = Client::find($id);
         $chats = Chat::where('from_u', $client->token)
                      ->orWhere('to_u', $client->token)                     
-                     ->orderBy('sended_time', 'ASC')
-                     ->orderBy('sended_date', 'ASC')
+                     ->orderBy('created_at', 'ASC')
                      ->get();
         return view('action.chat', compact(['client', 'chats']));
+    }
+    public function SendMessage(Request $request){
+        $chat = new Chat();
+        $chat->from_u = 'admin';
+        $chat->to_u = $request['client_token'];
+        $chat->message = $request['message'];
+        $chat->save();
+        return back();
     }
     public function logout(){
         session()->forget('vK68TF23TfYKYDBZSCC9');

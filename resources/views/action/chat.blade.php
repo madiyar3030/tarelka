@@ -25,39 +25,36 @@
                                     @if($chat->to_u == 'admin')
                                     <div class="row to">
                                         <div class="col-md6">
-                                            <div class="col-md-10">
-                                                <p>{{$chat->message}}</p>
-                                                @if(isset($chat->image_1))
+                                            <p>{{$chat->message}}</p>
+                                            @if(isset($chat->image_1))
                                                 <a href="{{asset($chat->image_1)}}" target="_blank">
                                                     <img src="{{asset($chat->image_1)}}" width="100" alt="">
                                                 </a>
-                                                @endif
-                                                @if(isset($chat->image_2))
+                                            @endif
+                                            @if(isset($chat->image_2))
                                                 <a href="{{asset($chat->image_2)}}" target="_blank">
                                                     <img src="{{asset($chat->image_2)}}" width="100" alt="">
                                                 </a>
-                                                @endif
-                                                @if(isset($chat->image_3))
+                                            @endif
+                                            @if(isset($chat->image_3))
                                                 <a href="{{asset($chat->image_3)}}" target="_blank">
                                                     <img src="{{asset($chat->image_3)}}" width="100" alt="">
                                                 </a>
-                                                @endif
-                                                @if(isset($chat->image_4))
+                                            @endif
+                                            @if(isset($chat->image_4))
                                                 <a href="{{asset($chat->image_4)}}" target="_blank">
                                                     <img src="{{asset($chat->image_4)}}" width="100" alt="">
                                                 </a>
-                                                @endif
-                                                @if(isset($chat->image_5))
+                                            @endif
+                                            @if(isset($chat->image_5))
                                                 <a href="{{asset($chat->image_5)}}" target="_blank">
                                                     <img src="{{asset($chat->image_5)}}" width="100" alt="">
                                                 </a>
-                                                @endif                               
-                                            </div>
-                                            <div class="col-md-2">
-                                                <span>{{substr($chat->sended_time, 0, 5)}}</span>
-                                                    {{$chat->sended_date}}
-                                            </div>
+                                            @endif                               
                                         </div>
+                                        <span class="m-t-15 m-l-5">
+                                            {{\Carbon\Carbon::parse($chat->created_at)->format('Y M, d H:i')}}
+                                        </span>
                                     </div>
                                     @else
                                         <div class="row from">
@@ -65,23 +62,26 @@
                                                 <div class="col-md-10">
                                                     {{$chat->message}}
                                                 </div>
-                                                <div class="col-md-2">
-                                                    {{substr($chat->sended_time, 0, 5)}}
-                                                    {{$chat->sended_date}}
-                                                </div>
                                             </div>
+                                        <span class="m-t-15 m-l-5 m-r-5">
+                                            {{\Carbon\Carbon::parse($chat->created_at)->format('Y M, d H:i')}}
+                                        </span>
                                         </div>                                    
                                     @endif
                                 @endforeach
-                            </div>                        
-                            <div class="input-group chat-input">
-                                <div class="form-line">
-                                    <input type="text" class="form-control date" placeholder="Message">
+                            </div>   
+                            <form action="{{route('SendMessage')}}" method="POST">
+                                {{csrf_field()}}   
+                                <input type="text" name="client_token" value="{{$client->token}}" hidden>
+                                <div class="input-group chat-input">
+                                    <div class="form-line">
+                                        <input type="text" class="form-control date" placeholder="Message" required name="message">
+                                    </div>
+                                    <span class="input-group-addon">
+                                        <button class="btn btn-default waves-effect" type="submit"><i class="material-icons">send</i></button>
+                                    </span>
                                 </div>
-                                <span class="input-group-addon">
-                                    <button class="btn btn-default waves-effect" type="submit"><i class="material-icons">send</i></button>
-                                </span>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>

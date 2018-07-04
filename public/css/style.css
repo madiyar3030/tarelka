@@ -3110,7 +3110,7 @@ section.content {
   padding: 15px;
   border-radius: 15px;
   max-width: 70%;
-  min-width: 150px;
+  min-width: 100px;
 }
 .chat-body .row.to .col-md6 .col-md-10,
 .chat-body .row.to .col-md6 .col-md-2,
