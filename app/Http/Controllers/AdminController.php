@@ -52,6 +52,10 @@ class AdminController extends Controller
                      ->orWhere('to_u', $client->token)                     
                      ->orderBy('created_at', 'ASC')
                      ->get();
+        foreach ($chats as $chat) {
+            $chat->readed = 1;
+            $chat->save();
+        }
         return view('action.chat', compact(['client', 'chats']));
     }
     public function SendMessage(Request $request){
@@ -383,6 +387,10 @@ class AdminController extends Controller
                                         ->orderBy('created_at','DESC')
                                         ->first()
                                         ->message;
+            $item['readed'] = Chat::where('from_u', $chat->from_u)
+                                        ->orderBy('created_at','DESC')
+                                        ->first()
+                                        ->readed;
         }
         return $item;
     }

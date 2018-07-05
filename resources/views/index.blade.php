@@ -12,7 +12,7 @@
                     @foreach($chats as $chat)
                         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                             <div class="card">
-                                <div class="header bg-red">
+                                <div class="header @if($chat['readed']==0) bg-blue @else bg-red @endif">
                                     <a href="{{route('Chat',$chat['client_id'])}}">
                                         <h2>
                                             {{$chat['from']}} <small>{{$chat['phone']}}</small>

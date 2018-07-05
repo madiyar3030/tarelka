@@ -318,8 +318,6 @@ class ApiController extends Controller
                 $result['result']['next_page'] = $next_page;
                 $result['result']['prev_page'] = $prev_page;               
                 foreach ($chats as $chat) {
-                    $chat->readed = 1;
-                    $chat->save();
                     $result['result']['chats'][] = $this->GetChat($chat->id);
                 }
                 $result['statusCode']= 200;
