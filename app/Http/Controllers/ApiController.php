@@ -199,8 +199,8 @@ class ApiController extends Controller
                 if (isset($task->image)) {
                     $temp['image'] = asset($task->image);
                 }
-                $temp['updated_at'] = $task->updated_at;
-                $temp['created_at'] = $task->created_at;
+                $temp['updated_at'] = Carbon::parse($chat->updated_at)->format('Y-m-d H:i:s');
+                $temp['created_at'] = Carbon::parse($chat->created_at)->format('Y-m-d H:i:s');
 
                 $result['result'][] = $temp;
             }

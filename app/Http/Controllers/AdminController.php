@@ -37,8 +37,9 @@ class AdminController extends Controller
     public function Index(){
     	date_default_timezone_set('Asia/Almaty');
         $dbchats = Chat::where('to_u', 'admin')
-            ->orderBy('created_at', 'DESC')
             ->groupBy('from_u')
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('readed', 'DESC')
             ->get();
         $chats = [];
         foreach ($dbchats as $item) {
