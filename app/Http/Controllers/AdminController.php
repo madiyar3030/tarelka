@@ -71,6 +71,60 @@ class AdminController extends Controller
         $clients = Client::all();
         return view('action.clients', compact(['clients']));
     }
+    public function DeleteClient($id){
+        $client = Client::find($id);
+        if ($client!=null) {
+            $goalclients = Goalclient::where('client_id', $client->id)->get();
+            if (count($goalclients)!=0) {
+                foreach ($goalclients as $goalclient) {
+                    $goalclient->delete();
+                }
+            }
+            $mealclients = Mealclient::where('client_id', $client->id)->get();
+            if (count($mealclients)!=0) {
+                foreach ($mealclients as $mealclient) {
+                    $mealclient->delete();
+                }
+            }
+            $progresses = Progress::where('client_id', $client->id)->get();
+            if (count($progresses)!=0) {
+                foreach ($progresses as $progress) {
+                    $progress->delete();
+                }
+            }
+            $quizclients = Quizclient::where('client_id', $client->id)->get();
+            if (count($quizclients)!=0) {
+                foreach ($quizclients as $quizclient) {
+                    $quizclient->delete();
+                }
+            }
+            $this->deletefile($client->avatar);
+            $client->delete();
+            return back();
+        }else{
+            return  'nothing to delete';
+        }
+    }
+    public function Upgrade($id){
+        $client = Client::find($id);
+        if ($client!=null) {
+            $client->status = 'pro';
+            $client->save();
+            return back();
+        }else{
+            return 'nothing to upgrade';
+        }
+    }
+    public function Downgrade($id){
+        $client = Client::find($id);
+        if ($client!=null) {
+            $client->status = null;
+            $client->save();
+            return back();
+        }else{
+            return 'nothing to upgrade';
+        }
+    }
     public function Goals(){
         $goals = Goal::all();
         return view('action.goal', compact(['goals']));

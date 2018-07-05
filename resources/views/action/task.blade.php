@@ -13,7 +13,7 @@
 		            <div class="row clearfix">
 		                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		                    <div class="card">
-		                        <div class="header bg-blue">
+		                        <div class="header bg-red">
 		                        	<a href="{{route('EditTask', $task->id)}}">
 			                            <h2>
 			                                {{$task->title}}

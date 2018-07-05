@@ -22,6 +22,9 @@ Route::group(['middleware' => ['admin']], function () {
 	Route::post('send_message', 'AdminController@SendMessage')->name('SendMessage');
 
 	Route::get('/clients', 'AdminController@Clients')->name('Clients');
+	Route::get('/delete_client/{id}', 'AdminController@DeleteClient')->name('DeleteClient');
+	Route::get('/upgrade/{id}', 'AdminController@Upgrade')->name('Upgrade');
+	Route::get('/downgrade/{id}', 'AdminController@Downgrade')->name('Downgrade');
 
 	Route::get('/goals', 'AdminController@Goals')->name('Goals');
 	Route::post('add_goal', 'AdminController@AddGoal')->name('AddGoal');

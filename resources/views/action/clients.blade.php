@@ -24,6 +24,7 @@
                                         <th>Вес</th>
                                         <th>Возраст</th>
                                         <th>Рейтинг</th>
+                                        <th>Действие</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -53,6 +54,14 @@
                                                 @endif
                                             </td>
                                             <td>{{Helpers::Rate($client->id)}}</td>
+                                            <td>
+                                                @if($client->status == 'pro')
+                                                <a href="{{route('Downgrade',$client->id)}}" class="btn btn-primary waves-effect">Понизить</a>
+                                                @else
+                                                <a href="{{route('Upgrade',$client->id)}}" class="btn btn-success waves-effect">Повысить</a>
+                                                @endif
+                                                <a href="{{route('DeleteClient',$client->id)}}" class="btn btn-danger waves-effect">Удалить</a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
