@@ -36,7 +36,7 @@
 		                        		<img src="{{asset($task->image)}}" alt="" width="130">
 		                        	</div>
 		                        	<div class="col-md-10">
-			                            {{$task->text}}
+			                            {!!$task->text!!}
 		                        	</div>
 		                        </div>
 		                    </div>
@@ -84,8 +84,7 @@
                        	<div class="col-sm-12">
                             <div class="form-group form-float">
                                 <div class="form-line">
-                                    <textarea rows="4" class="form-control no-resize" name="text"></textarea>
-                                    <label for="" class="form-label">Текст</label>
+                                    <textarea rows="4" class="form-control no-resize" name="text" id="tinymce"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -102,6 +101,8 @@
 @section('js')
     <!-- Jquery Validation Plugin Css -->
     <script src="../../plugins/jquery-validation/jquery.validate.js"></script>
+    <!-- TinyMCE -->
+    <script src="../../plugins/tinymce/tinymce.js"></script>
 	<script type="text/javascript">
 		function readURL(input) {
 
@@ -138,6 +139,23 @@
 		        }
 			});
 		    //==================================================================================================
+		        //TinyMCE
+		    tinymce.init({
+		        selector: "textarea#tinymce",
+		        theme: "modern",
+		        height: 300,
+		        plugins: [
+		            'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+		            'searchreplace wordcount visualblocks visualchars code fullscreen',
+		            'insertdatetime media nonbreaking save table contextmenu directionality',
+		            'emoticons template paste textcolor colorpicker textpattern imagetools'
+		        ],
+		        toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+		        toolbar2: 'print preview media | forecolor backcolor emoticons',
+		        image_advtab: true
+		    });
+		    tinymce.suffix = ".min";
+		    tinyMCE.baseURL = '../../plugins/tinymce';
 		});
 	</script>
 @endsection

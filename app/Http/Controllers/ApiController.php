@@ -96,6 +96,10 @@ class ApiController extends Controller
             $goalclient = Goalclient::where('goal_id',$request['goal_id'])->where('client_id', $user->id)->get();
             if (($user != null)&&($goal != null)) {
                 if (count($goalclient)==0) {
+                    $goals = Goalclient::where('client_id', $user->id)->get();
+                    foreach ($goals as $key) {
+                        $key->delete();
+                    }
                     $goal_c = new Goalclient();
                     $goal_c->client_id = $user->id;
                     $goal_c->goal_id = $goal->id;
@@ -199,8 +203,8 @@ class ApiController extends Controller
                 if (isset($task->image)) {
                     $temp['image'] = asset($task->image);
                 }
-                $temp['updated_at'] = Carbon::parse($chat->updated_at)->format('Y-m-d H:i:s');
-                $temp['created_at'] = Carbon::parse($chat->created_at)->format('Y-m-d H:i:s');
+                $temp['updated_at'] = Carbon::parse($task->updated_at)->format('Y-m-d H:i:s');
+                $temp['created_at'] = Carbon::parse($task->created_at)->format('Y-m-d H:i:s');
 
                 $result['result'][] = $temp;
             }
@@ -600,17 +604,17 @@ class ApiController extends Controller
             if(isset($user->weight)){
                 $item['weight'] = $user->weight;
             }else{
-                $item['weight'] = '';
+                $item['weight'] = 0;
             }
             if(isset($user->age)){
                 $item['age'] = $user->age;
             }else{
-                $item['age'] = '';
+                $item['age'] = 0;
             }
             if(isset($user->height)){
                 $item['height'] = $user->height;
             }else{
-                $item['height'] = '';
+                $item['height'] = 0;
             }
             $goals = Goalclient::where('client_id', $user->id)->get(); 
             foreach ($goals as $goal) {

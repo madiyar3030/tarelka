@@ -2,6 +2,11 @@
 @section('active_index', 'active')
 @section('title', 'Главная страница')
 @section('content')
+    <style>
+	.col-lg-4{
+	    height: 200px;
+	}
+    </style>
     <section class="content">
         <div class="container-fluid">
             <div class="block-header">

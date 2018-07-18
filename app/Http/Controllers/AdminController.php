@@ -38,7 +38,7 @@ class AdminController extends Controller
     	date_default_timezone_set('Asia/Almaty');
         $dbchats = Chat::where('to_u', 'admin')
             ->groupBy('from_u')
-            ->orderBy('created_at', 'DESC')
+            ->orderBy('updated_at', 'DESC')
             ->orderBy('readed', 'DESC')
             ->get();
         $chats = [];
@@ -64,7 +64,8 @@ class AdminController extends Controller
         $chat->from_u = 'admin';
         $chat->to_u = $request['client_token'];
         $chat->message = $request['message'];
-        $chat->save();
+        $this->push($request['client_token'], 'admin', $request['message']);
+	$chat->save();
         return back();
     }
     public function logout(){
@@ -385,6 +386,7 @@ class AdminController extends Controller
             $item['phone'] = Client::where('token', $chat->from_u)->first()->phone;
             $item['avatar'] = Client::where('token', $chat->from_u)->first()->avatar;
             $item['last_message']['message'] = Chat::where('from_u', $chat->from_u)
+                                        ->orWhere('to_u', $chat->from_u)
                                         ->orderBy('created_at','DESC')
                                         ->first()
                                         ->message;
@@ -432,5 +434,39 @@ class AdminController extends Controller
     }
     protected function validator($errors,$rules) {
         return Validator::make($errors,$rules);
+    }
+    
+    public function push($token, $from, $message){
+	//dd($message);
+        $client = new Clientt;
+	$client->request('POST','https://fcm.googleapis.com/fcm/send',[
+                'headers' => [
+                    'Authorization' => 'key=AAAArtRfBGU:APA91bHEEG6qwHpfZG3IKfb5kUtErnYIwIrqjHJxP45cOYPQUlWtnssz2pL-YJiu0OIEg0nvodauqhU_gT-9hqJCuLmVEmE1C7Wp-IreXZoeG8sYBVV_WejayW-zcRardeojukcQaNqeNMvwpXsded8bN-5walZpZA',
+                    'Content-Type'     => 'application/json',
+                ],
+                'json' =>[
+                    "to" => "/topics/".$token."_a",
+                    "data" => [
+                        "body" =>$message,
+                        "title" => $from
+                    ],
+                ]
+	    ]
+        );
+        $client->request('POST','https://fcm.googleapis.com/fcm/send',[
+                'headers' => [
+                    'Authorization' => 'key=AAAArtRfBGU:APA91bHEEG6qwHpfZG3IKfb5kUtErnYIwIrqjHJxP45cOYPQUlWtnssz2pL-YJiu0OIEg0nvodauqhU_gT-9hqJCuLmVEmE1C7Wp-IreXZoeG8sYBVV_WejayW-zcRardeojukcQaNqeNMvwpXsded8bN-5walZpZA',
+                    'Content-Type'     => 'application/json',
+                ],
+                'json' =>[
+                    "to" => "/topics/$token",
+                    "notification" => [
+                        "body" => $message,
+                        'post' => 'tarelka',
+                        "sound" => "default"
+                    ]
+                ]
+	    ]
+        );
     }
 }

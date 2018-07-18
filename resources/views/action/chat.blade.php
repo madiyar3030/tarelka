@@ -5,18 +5,38 @@
 @section('content')
     <section class="content chat">
         <div class="container-fluid">
-            <div class="block-header">
-                <a href="{{route('Index')}}" class="btn btn-default waves-effect">Назад</a>
+            <div class="block-header row">
+                <div class="col-md-1">
+                    <a href="{{route('Index')}}" class="btn btn-default waves-effect">Назад</a>                    
+                </div>
+                <div class="col-md-2">
+                    <?php                     
+                        $goals = \App\Models\Goalclient::where('client_id', $client->id)->get(); 
+                        $meals = \App\Models\Mealclient::where('client_id', $client->id)->get(); 
+                    ?>
+                    <strong>Цели:</strong>
+                    @foreach($goals as $goal)
+                        {{\App\Models\Goal::find($goal->goal_id)->title}}
+                    @endforeach<br>
+                </div>
+                <div class="col-md-2">
+                    <strong>Блюда:</strong>
+                    @foreach($meals as $meal)
+                        {{\App\Models\Meal::find($meal->meal_id)->title}},
+                    @endforeach                    
+                </div>
+                <div class="col-md-2">
+                    <strong>Status:</strong>
+                    {{$client->status}}
+                </div>
             </div>
             <div class="row clearfix">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="card card-chat">
                         <div class="header bg-red">
-                            <a href="">
-                                <h2>
-                                   {{$client->fio}}<small>{{$client->phone}}</small>
-                                </h2> 
-                            </a>
+                            <h2>
+                               {{$client->fio}}<small>{{$client->phone}}</small>
+                            </h2> 
                             <img src="{{asset($client->avatar)}}" width="40" height="40" style="border-radius: 50%; display: block; margin-bottom: 5px;" class="m-b-5">
                         </div>
                         <div class="body">
