@@ -304,6 +304,12 @@
                             <span>Главная</span>
                         </a>
                     </li>
+                    <li class="@yield('active_info')">
+                        <a href="{{route('Info')}}" class="">
+                            <i class="material-icons">account_box</i>
+                            <span>Данные администратора</span>
+                        </a>
+                    </li> 
                     <li class="@yield('active_clients')">
                         <a href="{{route('Clients')}}">
                             <i class="material-icons">account_circle</i>
@@ -335,7 +341,7 @@
                             <i class="material-icons">assessment</i>
                             <span>Задание</span>
                         </a>
-                    </li>                
+                    </li>               
                 </ul>
             </div>
             <!-- #Menu -->

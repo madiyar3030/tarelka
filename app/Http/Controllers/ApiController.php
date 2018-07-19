@@ -21,6 +21,7 @@ use App\Models\Progress;
 use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\Quizclient;
+use App\Models\Admin;
 
 class ApiController extends Controller
 {
@@ -52,6 +53,23 @@ class ApiController extends Controller
                 $result['message'] = 'User has been registered';
                 $result['result'] = $this->GetUser($user->id);
             }
+        }
+        return response()->json($result, $result['statusCode']);
+    }
+    public function Info(){
+        $info = Admin::find(1);
+        if ($info == null) {
+            $result['statusCode'] = 404;
+            $result['message'] = 'Not found';
+            $result['result'] = [];
+        }else{
+            $result['statusCode'] = 200;
+            $result['message'] = 'Success!';
+            $result['result']['whatsapp'] = $info->whatsapp;
+            $result['result']['telegram'] = $info->telegram;
+            $result['result']['facebook'] = $info->facebook;
+            $result['result']['viber'] = $info->viber;
+            $result['result']['vk'] = $info->vk;
         }
         return response()->json($result, $result['statusCode']);
     }

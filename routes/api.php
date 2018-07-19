@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 // });
 Route::post('auth', 'ApiController@Auth');
 Route::post('profile', 'ApiController@Profile');
+Route::get('info', 'ApiController@Info');
 
 // Route::post('check', 'ApiController@CheckCode');
 Route::get('meals', 'ApiController@Meals');

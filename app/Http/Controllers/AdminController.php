@@ -21,6 +21,7 @@ use App\Models\Progress;
 use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\Quizclient;
+use App\Models\Admin;
 
 class AdminController extends Controller
 {
@@ -43,10 +44,36 @@ class AdminController extends Controller
             ->get();
         $chats = [];
         foreach ($dbchats as $item) {
-            $chats[] = $this->GetConver($item->id);
+            if((Client::where('token',$item->from_u)->orWhere('token',$item->to_u)->first())){
+                $chats[] = $this->GetConver($item->id);
+            }
         }
     	return view('index', compact(['chats']));
     }    
+    public function Info(){
+        $info = Admin::find(1);
+        return view('action.info', compact(['info']));
+    }
+    public function SaveInfo(Request $request){
+        $info = Admin::find(1);
+        if (isset($request['whatsapp'])) {
+            $info->whatsapp = $request['whatsapp'];
+        }
+        if (isset($request['telegram'])) {
+            $info->telegram = $request['telegram'];
+        }
+        if (isset($request['vk'])) {
+            $info->vk = $request['vk'];
+        }
+        if (isset($request['facebook'])) {
+            $info->facebook = $request['facebook'];
+        }
+        if (isset($request['viber'])) {
+            $info->viber = $request['viber'];
+        }
+        $info->save();
+        return back();
+    }
     public function Chat($id){
         $client = Client::find($id);
         $chats = Chat::where('from_u', $client->token)
@@ -102,6 +129,12 @@ class AdminController extends Controller
             if (count($quizclients)!=0) {
                 foreach ($quizclients as $quizclient) {
                     $quizclient->delete();
+                }
+            }
+            $chats = Chat::where('from_u', $client->token)->orWhere('to_u', $client->token)->get();
+            if (count($chats)!=0) {
+                foreach ($chats as $chat) {
+                    $chat->delete();
                 }
             }
             $this->deletefile($client->avatar);
@@ -376,6 +409,7 @@ class AdminController extends Controller
 
     public function GetConver($chat_id){
         $chat = Chat::find($chat_id);
+        $client = Client::where('token', $chat->to_u)->first();
         if ($chat->from_u == 'admin') {
             $item['from'] = 'admin'; 
             $item['to'] = Client::where('token', $chat->to_u)->first()->fio;
