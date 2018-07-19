@@ -34,22 +34,6 @@
 			                                </div>
 			                            </div>
 			                        </div>
-			                        <div class="row col-sm-12">
-			                            <div class="col-sm-6">
-			                                <div class="form-group">
-			                                    <div class="form-line">
-			                                        <input type="text" name="start_time" class="datetimepicker form-control" placeholder="Начало" value="{{$quiz->start_time}}">
-			                                    </div>
-			                                </div>
-			                            </div>
-			                            <div class="col-sm-6">
-			                                <div class="form-group">
-			                                    <div class="form-line">
-			                                        <input type="text" name="end_time" class="datetimepicker form-control" placeholder="Конец" value="{{$quiz->end_time}}">
-			                                    </div>
-			                                </div>
-			                            </div>
-			                        </div>
 			                    	<button type="submit" class="btn btn-primary waves-effect">Сохранить	</button>
 		                    	</form>
 	                    	@endif

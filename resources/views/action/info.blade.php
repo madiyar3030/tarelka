@@ -68,7 +68,7 @@
     <script src="{{asset('public/plugins/jquery-inputmask/jquery.inputmask.bundle.js')}}"></script>
 	<script>
 		$(function(){
-			$('.demo-masked-input').find('.mobile-phone-number').inputmask('+9 (999) 999-99-99', { placeholder: '+_ (___) ___-__-__' });
+			$('.demo-masked-input').find('.mobile-phone-number').inputmask('+9 999 9999999', { placeholder: '+_ ___ _______' });
 		})
 	</script>
 @endsection

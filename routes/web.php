@@ -23,6 +23,12 @@ Route::group(['middleware' => ['admin']], function () {
 	Route::get('/chat/{id}', 'AdminController@Chat')->name('Chat');
 	Route::post('send_message', 'AdminController@SendMessage')->name('SendMessage');
 
+	Route::get('/schedule', 'AdminController@Schedule')->name('Schedule');
+	Route::post('add_schedule', 'AdminController@AddSchedule')->name('AddSchedule');
+	Route::get('/delete_schedule/{id}', 'AdminController@DeleteSchedule')->name('DeleteSchedule');
+    Route::get('/edit_schedule/{id}', 'AdminController@EditSchedule')->name('EditSchedule');
+	Route::post('save_schedule', 'AdminController@SaveSchedule')->name('SaveSchedule');
+
 	Route::get('/clients', 'AdminController@Clients')->name('Clients');
 	Route::get('/delete_client/{id}', 'AdminController@DeleteClient')->name('DeleteClient');
 	Route::get('/upgrade/{id}', 'AdminController@Upgrade')->name('Upgrade');

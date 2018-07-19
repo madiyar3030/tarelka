@@ -13,22 +13,17 @@ use Illuminate\Http\Request;
 |
 */
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 Route::post('auth', 'ApiController@Auth');
 Route::post('profile', 'ApiController@Profile');
 Route::get('info', 'ApiController@Info');
 
-// Route::post('check', 'ApiController@CheckCode');
 Route::get('meals', 'ApiController@Meals');
 Route::post('send_meal', 'ApiController@SendMeal');
 
 Route::get('goals', 'ApiController@Goals');
 Route::post('send_goal', 'ApiController@SendGoal');
 
-Route::get('tasks', 'ApiController@Tasks');
-Route::get('post/{id}', 'ApiController@Post');
+Route::post('tasks', 'ApiController@Tasks');
 
 Route::post('chat', 'ApiController@Chat');
 Route::post('send_message', 'ApiController@SendMessage');

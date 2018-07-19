@@ -151,3 +151,85 @@
         }
         return response()->json($result, $result['statusCode']);
     }
+    public function Taskss(){
+        $tasks = Task::all();
+
+        if  (count($tasks) != 0){
+            $result['statusCode'] = 200;
+            $result['message'] = 'success';
+
+            foreach ($tasks as $task) {
+                $temp['id'] = $task->id;
+                $temp['title'] = $task->title;
+                $temp['text'] = $task->text;
+                if (isset($task->image)) {
+                    $temp['image'] = asset($task->image);
+                }
+                $temp['updated_at'] = Carbon::parse($task->updated_at)->format('Y-m-d H:i:s');
+                $temp['created_at'] = Carbon::parse($task->created_at)->format('Y-m-d H:i:s');
+
+                $result['result'][] = $temp;
+            }
+        }
+        else{
+            $result['statusCode'] = 404;
+            $result['message'] = 'Tasks not found';
+            $result['result'] = [];
+        }
+        return response()->json($result, $result['statusCode']);
+    }
+    public function ListQuizz(Request $request){
+        $rules = [
+            'token' => 'required|exists:clients,token',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }else {
+            $user = Client::where('token', $request['token'])->first();
+            $quizzes = Quiz::all();
+            if (count($quizzes)!=0) {
+                $result['statusCode'] = 200;
+                $result['message'] = 'success';
+                $scoreimg = [];     
+                $dateimg = Chat::where('from_u', $user->token)
+                                            ->whereNotNull('image_1')
+                                            ->orderBy('created_at', 'DESC')
+                                            ->first();
+                if (isset($dateimg)) {
+                    $scoreimg['img_date'] = $dateimg->sended_date;
+                    $date = Carbon::parse($scoreimg['img_date']);
+                    $diff = $date->diffInDays(Carbon::now());
+                }else{
+                    $diff = 8;
+                }         
+                for ($i=0; $i < 5; $i++) {                     
+                    $scoreimg[$i] = Chat::where('from_u', $user->token)->whereNotNull('image_'.($i+1))->count();
+                }
+                if ($diff>7) {
+                    $result['statusCode'] = 201;
+                    $result['message'] = 'Download image';
+                    $result['result'] = null;
+                }else{
+                    foreach ($quizzes as $quiz) {
+                        $temp['id'] = $quiz->id;
+                        if ((Quizclient::where('quiz_id', $quiz->id)->where('client_id', $user->id)->first()!=null)) {
+                            $temp['status'] = 1;
+                        }else{
+                            $temp['status'] = 0;
+                        }
+                        $temp['title'] = $quiz->title;
+
+                        $result['result'][] = $temp;
+                    }   
+                }     
+            }else{
+                $result['statusCode'] = 404;
+                $result['message'] = 'Quizzes not found';
+                $result['result'] = null;                
+            }
+        }
+        return response()->json($result, $result['statusCode']);
+    }

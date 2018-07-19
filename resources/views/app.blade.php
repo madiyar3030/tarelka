@@ -310,6 +310,24 @@
                             <span>Данные администратора</span>
                         </a>
                     </li> 
+                    <li class="@yield('active_quiz')">
+                        <a href="{{route('Quiz')}}" class="">
+                            <i class="material-icons">assignment</i>
+                            <span>Экзамены</span>
+                        </a>
+                    </li>  
+                    <li class="@yield('active_task')">
+                        <a href="{{route('Tasks')}}" class="">
+                            <i class="material-icons">assessment</i>
+                            <span>Задание</span>
+                        </a>
+                    </li> 
+                    <li class="@yield('active_schedule')">
+                        <a href="{{route('Schedule')}}" class="">
+                            <i class="material-icons">schedule</i>
+                            <span>Расписание</span>
+                        </a>
+                    </li>  
                     <li class="@yield('active_clients')">
                         <a href="{{route('Clients')}}">
                             <i class="material-icons">account_circle</i>
@@ -329,19 +347,7 @@
                                 <a href="{{route('Goals')}}">Цели</a>
                             </li>
                         </ul>
-                    </li>
-                    <li class="@yield('active_quiz')">
-                        <a href="{{route('Quiz')}}" class="">
-                            <i class="material-icons">assignment</i>
-                            <span>Экзамены</span>
-                        </a>
-                    </li>  
-                    <li class="@yield('active_task')">
-                        <a href="{{route('Tasks')}}" class="">
-                            <i class="material-icons">assessment</i>
-                            <span>Задание</span>
-                        </a>
-                    </li>               
+                    </li>             
                 </ul>
             </div>
             <!-- #Menu -->

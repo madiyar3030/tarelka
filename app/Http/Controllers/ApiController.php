@@ -12,7 +12,6 @@ use App\Models\Client;
 use App\Models\Goal;
 use App\Models\Meal;
 use App\Models\Task;
-use App\Models\Post;
 use App\Models\Goalclient;
 use App\Models\Mealclient;
 use App\Models\Chat;
@@ -22,6 +21,7 @@ use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\Quizclient;
 use App\Models\Admin;
+use App\Models\Schedule;
 
 class ApiController extends Controller
 {
@@ -207,48 +207,33 @@ class ApiController extends Controller
         return response()->json($result, $result['statusCode']);
     }
 
-    public function Tasks(){
-        $tasks = Task::all();
-
-        if  (count($tasks) != 0){
-            $result['statusCode'] = 200;
-            $result['message'] = 'success';
-
-            foreach ($tasks as $task) {
-                $temp['id'] = $task->id;
-                $temp['title'] = $task->title;
-                $temp['text'] = $task->text;
-                if (isset($task->image)) {
-                    $temp['image'] = asset($task->image);
+    public function Tasks(Request $request){
+        $rules = [
+            'token' => 'required|exists:clients,token',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }else {
+            $user = Client::where('token', $request['token'])->first();
+            $schedules = Schedule::all();
+            if (count($schedules)!=0) {
+                $result['statusCode'] = 200;
+                $result['message'] = 'success';
+                foreach ($schedules as $schedule) {
+                    $result['result']['tasks'][] = $this->GetTask($schedule->task_id, $schedule->step, $user);
                 }
-                $temp['updated_at'] = Carbon::parse($task->updated_at)->format('Y-m-d H:i:s');
-                $temp['created_at'] = Carbon::parse($task->created_at)->format('Y-m-d H:i:s');
-
-                $result['result'][] = $temp;
+                
+            }else{
+                $result['statusCode'] = 404;
+                $result['message'] = 'Quizzes not found';
+                $result['result'] = null;                
             }
-        }
-        else{
-            $result['statusCode'] = 404;
-            $result['message'] = 'Tasks not found';
-            $result['result'] = [];
         }
         return response()->json($result, $result['statusCode']);
     }
-    // public function Post($id){
-    //     $post = Post::find($id);
-
-    //     if  (count($post) != 0){
-    //         $result['statusCode'] = 200;
-    //         $result['message'] = 'success';
-    //         $result['result'] = $post;
-    //     }
-    //     else{
-    //         $result['statusCode'] = 404;
-    //         $result['message'] = 'Post not found';
-    //         $result['result'] = [];
-    //     }
-    //     return response()->json($result, $result['statusCode']);
-    // }
 
     public function Profile(Request $request){
         $rules = [
@@ -497,24 +482,13 @@ class ApiController extends Controller
             $result['result']= [];
         }else {
             $user = Client::where('token', $request['token'])->first();
-            $quizzes = Quiz::all();
-            if (count($quizzes)!=0) {
+            $schedules = Schedule::all();
+            if (count($schedules)!=0) {
                 $result['statusCode'] = 200;
                 $result['message'] = 'success';
-                foreach ($quizzes as $quiz) {
-                    $temp['id'] = $quiz->id;
-                    if (Quizclient::where('quiz_id', $quiz->id)->where('client_id', $user->id)->first()!=null) {
-                        $temp['status'] = 1;
-                    }else{
-                        $temp['status'] = 0;
-                    } 
-                    $temp['task_id'] = $quiz->task_id;
-                    $temp['title'] = $quiz->title;
-                    $temp['start_time'] = $quiz->start_time;
-                    $temp['end_time'] = $quiz->end_time;
-
-                    $result['result'][] = $temp;
-                }        
+                foreach ($schedules as $schedule) {
+                    $result['result']['tasks'][] = $this->GetQuiz($schedule->quiz_id, $schedule->step, $user);
+                }                
             }else{
                 $result['statusCode'] = 404;
                 $result['message'] = 'Quizzes not found';
@@ -523,6 +497,7 @@ class ApiController extends Controller
         }
         return response()->json($result, $result['statusCode']);
     }
+
     public function ListQuestion(Request $request){
         $rules = [
             'token' => 'required|exists:clients,token',
@@ -586,6 +561,9 @@ class ApiController extends Controller
                 $quiz->client_id = $user->id;
                 $progress->save();
                 $quiz->save();
+                $user->step = $user->step+1;
+                $user->last_action = $request['quiz_date'];
+                $user->save();
 
                 $result['statusCode'] = 200;
                 $result['message'] = 'success';   
@@ -681,6 +659,59 @@ class ApiController extends Controller
             return null;
         }
     }
+    public function GetTask($task_id,$step,$user){
+        $task = Task::find($task_id);
+        if ($task!=null) {
+            $item['id'] = $task->id;
+            $item['title'] = $task->title;
+            $item['image'] = $task->image;
+            $item['text'] = $task->text;
+            if ($user->step >= $step) {
+                $item['access'] = 1;
+            }else{
+                $item['access'] = 0;
+            }
+        }else{
+            $item = null;
+        }
+        return $item;
+    }
+    public function GetQuiz($quiz_id,$step,$user){
+        $quiz = Quiz::find($quiz_id);
+        if ($quiz!=null) {
+            $item['id'] = $quiz->id;
+            $item['title'] = $quiz->title;
+            $first = $user->step >= $step;
+            $img = Chat::where('from_u', $user->token)
+                                            ->whereNotNull('image_1')
+                                            ->orderBy('created_at', 'DESC')
+                                            ->first();
+            if (isset($img)) {
+                $dateimg = $img->sended_date;
+                $date = Carbon::parse($dateimg);
+                $second = $date->diffInDays(Carbon::now())<8;
+            }else{
+                $second = false;
+            }            
+            $third = Carbon::parse($user->last_action)->diffInDays(Carbon::now())>7;
+            if (($first)&&($second)&&($third)) {
+                $item['access'] = 1;
+            }else{
+                $item['access'] = 0;
+            }
+            if ((Quizclient::where('quiz_id', $quiz->id)->where('client_id', $user->id)->first()!=null)) {
+                $item['status'] = 1;
+            }else{
+                $item['status'] = 0;
+            }
+            $item['step'] = $first;
+            $item['img_in7days'] = $second;
+            $item['7days'] = $third;
+        }else{
+            $item = null;
+        }
+        return $item;
+    }
     public function uploadfile($file,$dir = 'uploads'){
         $file_type = File::extension($file->getClientOriginalName());
         $file_name = time().str_random(5).'.'.$file_type;
@@ -697,6 +728,7 @@ class ApiController extends Controller
         }
     }
     protected function validator($errors,$rules) {
+
         return Validator::make($errors,$rules);
     }
 }

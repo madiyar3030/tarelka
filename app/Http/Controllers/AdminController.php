@@ -12,7 +12,6 @@ use App\Models\Client;
 use App\Models\Goal;
 use App\Models\Meal;
 use App\Models\Task;
-use App\Models\Post;
 use App\Models\Goalclient;
 use App\Models\Mealclient;
 use App\Models\Chat;
@@ -22,6 +21,7 @@ use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\Quizclient;
 use App\Models\Admin;
+use App\Models\Schedule;
 
 class AdminController extends Controller
 {
@@ -34,6 +34,11 @@ class AdminController extends Controller
         } else {
             return redirect()->route('Login')->with('message', 'Неправильный пароль или логин!!!');
         }
+    }
+    public function logout(){
+        session()->forget('vK68TF23TfYKYDBZSCC9');
+        session()->save();
+        return redirect()->route('Login');
     }
     public function Index(){
     	date_default_timezone_set('Asia/Almaty');
@@ -49,7 +54,28 @@ class AdminController extends Controller
             }
         }
     	return view('index', compact(['chats']));
-    }    
+    }   
+    public function Chat($id){
+        $client = Client::find($id);
+        $chats = Chat::where('from_u', $client->token)
+                     ->orWhere('to_u', $client->token)                     
+                     ->orderBy('created_at', 'ASC')
+                     ->get();
+        foreach ($chats as $chat) {
+            $chat->readed = 1;
+            $chat->save();
+        }
+        return view('action.chat', compact(['client', 'chats']));
+    }
+    public function SendMessage(Request $request){
+        $chat = new Chat();
+        $chat->from_u = 'admin';
+        $chat->to_u = $request['client_token'];
+        $chat->message = $request['message'];
+        $this->push($request['client_token'], 'admin', $request['message']);
+	    $chat->save();
+        return back();
+    } 
     public function Info(){
         $info = Admin::find(1);
         return view('action.info', compact(['info']));
@@ -74,31 +100,202 @@ class AdminController extends Controller
         $info->save();
         return back();
     }
-    public function Chat($id){
-        $client = Client::find($id);
-        $chats = Chat::where('from_u', $client->token)
-                     ->orWhere('to_u', $client->token)                     
-                     ->orderBy('created_at', 'ASC')
-                     ->get();
-        foreach ($chats as $chat) {
-            $chat->readed = 1;
-            $chat->save();
-        }
-        return view('action.chat', compact(['client', 'chats']));
+    public function Quiz(){
+        $quizzes = Quiz::orderBy('created_at', 'DESC')->get();
+        return view('action.quiz', compact(['quizzes']));
     }
-    public function SendMessage(Request $request){
-        $chat = new Chat();
-        $chat->from_u = 'admin';
-        $chat->to_u = $request['client_token'];
-        $chat->message = $request['message'];
-        $this->push($request['client_token'], 'admin', $request['message']);
-	$chat->save();
+    public function AddQuiz(Request $request){
+        $quiz = new Quiz();
+        $quiz->title = $request['title'];
+        $quiz->save();
+        return back()->with('success_action', 'Успешно добавлено');
+    }
+    public function DeleteQuiz($id){
+        $quiz = Quiz::find($id);
+        if ($quiz!=null) {
+            $quiz->delete();
+            $questions = Question::where('quiz_id', $id)->get();
+            if (count($questions)!=0) {
+                foreach ($questions as $question) {
+                    $question->delete();
+                }
+            }
+            return back()->with('success_delete', 'Успешно удалено');
+        }else{
+            return 'nothing to delete';
+        }
+    }
+    public function EditQuiz($id){
+        $quiz = Quiz::find($id);
+        if ($quiz!=null) {
+            return view('action.edit_quiz', compact(['quiz']));
+        }else{
+            return 'nothing to edit';
+        }
+    }
+    public function SaveQuiz(Request $request){
+        $quiz = Quiz::find($request['id']);
+        if (isset($request['title'])) {
+            $quiz->title = $request['title'];
+        }
+        $quiz->save(); 
+        return back()->with('success_save', 'Успешно сохранено');
+    } 
+    public function Question($id){
+        $quiz_id = $id;
+        $questions = Question::where('quiz_id', $id)->get();
+        return view('action.question', compact(['questions', 'quiz_id']));
+    }
+    public function AddQuestion(Request $request){
+        $question = new Question();
+        $question->question = $request['question'];
+        $question->quiz_id = $request['quiz_id'];
+        $question->answer_a = $request['answer_a'];
+        $question->answer_b = $request['answer_b'];
+        $question->answer_c = $request['answer_c'];
+        $question->answer_d = $request['answer_d'];
+        $question->answer_e = $request['answer_e'];
+        $question->right_answer = $request['right_answer'];
+        $question->save();
         return back();
     }
-    public function logout(){
-        session()->forget('vK68TF23TfYKYDBZSCC9');
-        session()->save();
-        return redirect()->route('Login');
+    public function DeleteQuestion($id){
+        $question = Question::find($id);
+        if ($question!=null) {
+            $question->delete();
+            return back()->with('success_delete', 'Успешно удалено');
+        }else{
+            return 'nothing to delete';
+        }
+    }
+    public function EditQuestion($id){
+        $question = Question::find($id);
+        if ($question!=null) {
+            return view('action.edit_question', compact(['question']));
+        }else{
+            return 'nothing to edit';
+        }
+    }    
+    public function SaveQuestion(Request $request){
+        $question = Question::find($request['id']);
+        if (isset($request['quiz_id'])) {
+            $question->quiz_id = $request['quiz_id'];
+        }
+        if (isset($request['question'])) {
+            $question->question = $request['question'];
+        }
+        if (isset($request['right_answer'])) {
+            $question->right_answer = $request['right_answer'];
+        }
+        if (isset($request['answer_a'])) {
+            $question->answer_a = $request['answer_a'];
+        }
+        if (isset($request['answer_b'])) {
+            $question->answer_b = $request['answer_b'];
+        }
+        if (isset($request['answer_c'])) {
+            $question->answer_c = $request['answer_c'];
+        }
+        if (isset($request['answer_d'])) {
+            $question->answer_d = $request['answer_d'];
+        }
+        if (isset($request['answer_e'])) {
+            $question->answer_e = $request['answer_e'];
+        }
+        $question->save(); 
+        return back()->with('success_save', 'Успешно сохранено');
+    } 
+    public function Tasks(){
+        $tasks = Task::orderBy('created_at', 'DESC')->get();
+        return view('action.task', compact(['tasks']));
+    }
+    public function AddTask(Request $request){
+        $task = new Task();
+        $task->title = $request['title'];
+        $task->text = $request['text'];
+        $task->image = $this->uploadfile($request['image']);
+        $task->save();
+        return back()->with('success_action', 'Успешно добавлено');
+    }
+    public function DeleteTask($id){
+        $task = Task::find($id);
+        if ($task!=null) {
+            $this->deletefile($task->image);
+            $quizzes = Quiz::where('task_id', $task->id)->get();
+            foreach ($quizzes as $quiz) {
+                $this->DeleteQuiz($quiz->id);
+            }
+            $task->delete();
+            return back()->with('success_delete', 'Успешно удалено');
+        }else{
+            return 'nothing to delete';
+        }
+    }
+    public function EditTask($id){
+        $task = Task::find($id);
+        if ($task!=null) {
+            return view('action.edit_task', compact(['task']));
+        }else{
+            return 'nothing to edit';
+        }
+    }
+    public function SaveTask(Request $request){
+        $task = Task::find($request['id']);
+        if (isset($request['title'])) {
+            $task->title = $request['title'];
+        }
+        if (isset($request['image'])) {
+            $this->deletefile($task->image);
+            $task->image = $this->uploadfile($request['image']);
+        }
+        if (isset($request['text'])) {
+            $task->text = $request['text'];
+        }
+        $task->save(); 
+        return back()->with('success_save', 'Успешно сохранено');
+    } 
+    public function Schedule(){
+        $schedules = Schedule::orderBy('step', 'DESC')->get();
+        return view('action.schedule', compact(['schedules']));
+    }
+    public function AddSchedule(Request $request){
+        $schedule = new Schedule();
+        $schedule->step = $request['step'];
+        $schedule->task_id = $request['task_id'];
+        $schedule->quiz_id = $request['quiz_id'];
+        $schedule->save();
+        return back();
+    }
+    public function DeleteSchedule($id){
+        $schedule = Schedule::find($id);
+        if ($schedule!=null) {
+            $schedule->delete();
+            return back();
+        }else{
+            return 'nothing to delete';
+        }
+    }
+    public function EditSchedule($id){
+        $schedule = Schedule::find($id);
+        if ($schedule!=null) {
+            return view('action.edit_schedule', compact(['schedule']));
+        }else{
+            return 'nothing to edit';
+        }
+    }
+    public function SaveSchedule(Request $request){
+        $schedule = Schedule::find($request['id']);
+        if (isset($request['step'])) {
+            $schedule->step = $request['step'];
+        }
+        if (isset($request['quiz_id'])) {
+            $schedule->quiz_id = $request['quiz_id'];
+        }
+        if (isset($request['task_id'])) {
+            $schedule->task_id = $request['task_id'];
+        }
+        $schedule->save(); 
+        return back()->with('success_save', 'Успешно сохранено');        
     }
     public function Clients(){
         $clients = Client::all();
@@ -246,166 +443,6 @@ class AdminController extends Controller
         $meal->save(); 
         return back()->with('success_save', 'Успешно сохранено');
     }    
-    public function Quiz(){
-        $quizzes = Quiz::orderBy('created_at', 'DESC')->get();
-        return view('action.quiz', compact(['quizzes']));
-    }
-    public function AddQuiz(Request $request){
-        $quiz = new Quiz();
-        $quiz->task_id = 1;
-        $quiz->title = $request['title'];
-        $quiz->start_time = $request['start_time'];
-        $quiz->end_time = $request['end_time'];
-        $quiz->save();
-        return back()->with('success_action', 'Успешно добавлено');
-    }
-    public function DeleteQuiz($id){
-        $quiz = Quiz::find($id);
-        if ($quiz!=null) {
-            $quiz->delete();
-            $questions = Question::where('quiz_id', $id)->get();
-            if (count($questions)!=0) {
-                foreach ($questions as $question) {
-                    $question->delete();
-                }
-            }
-            return back()->with('success_delete', 'Успешно удалено');
-        }else{
-            return 'nothing to delete';
-        }
-    }
-    public function EditQuiz($id){
-        $quiz = Quiz::find($id);
-        if ($quiz!=null) {
-            return view('action.edit_quiz', compact(['quiz']));
-        }else{
-            return 'nothing to edit';
-        }
-    }
-    public function SaveQuiz(Request $request){
-        $quiz = Quiz::find($request['id']);
-        if (isset($request['title'])) {
-            $quiz->title = $request['title'];
-        }
-        if (isset($request['start_time'])) {
-            $quiz->start_time = $request['start_time'];
-        }
-        if (isset($request['end_time'])) {
-            $quiz->end_time = $request['end_time'];
-        }
-        $quiz->save(); 
-        return back()->with('success_save', 'Успешно сохранено');
-    } 
-    public function Question($id){
-        $quiz_id = $id;
-        $questions = Question::where('quiz_id', $id)->get();
-        return view('action.question', compact(['questions', 'quiz_id']));
-    }
-    public function AddQuestion(Request $request){
-        $question = new Question();
-        $question->question = $request['question'];
-        $question->quiz_id = $request['quiz_id'];
-        $question->answer_a = $request['answer_a'];
-        $question->answer_b = $request['answer_b'];
-        $question->answer_c = $request['answer_c'];
-        $question->answer_d = $request['answer_d'];
-        $question->answer_e = $request['answer_e'];
-        $question->right_answer = $request['right_answer'];
-        $question->save();
-        return back();
-    }
-    public function DeleteQuestion($id){
-        $question = Question::find($id);
-        if ($question!=null) {
-            $question->delete();
-            return back()->with('success_delete', 'Успешно удалено');
-        }else{
-            return 'nothing to delete';
-        }
-    }
-    public function EditQuestion($id){
-        $question = Question::find($id);
-        if ($question!=null) {
-            return view('action.edit_question', compact(['question']));
-        }else{
-            return 'nothing to edit';
-        }
-    }    
-    public function SaveQuestion(Request $request){
-        $question = Question::find($request['id']);
-        if (isset($request['quiz_id'])) {
-            $question->quiz_id = $request['quiz_id'];
-        }
-        if (isset($request['question'])) {
-            $question->question = $request['question'];
-        }
-        if (isset($request['right_answer'])) {
-            $question->right_answer = $request['right_answer'];
-        }
-        if (isset($request['answer_a'])) {
-            $question->answer_a = $request['answer_a'];
-        }
-        if (isset($request['answer_b'])) {
-            $question->answer_b = $request['answer_b'];
-        }
-        if (isset($request['answer_c'])) {
-            $question->answer_c = $request['answer_c'];
-        }
-        if (isset($request['answer_d'])) {
-            $question->answer_d = $request['answer_d'];
-        }
-        if (isset($request['answer_e'])) {
-            $question->answer_e = $request['answer_e'];
-        }
-        $question->save(); 
-        return back()->with('success_save', 'Успешно сохранено');
-    } 
-
-    public function Tasks(){
-        $tasks = Task::orderBy('created_at', 'DESC')->get();
-        return view('action.task', compact(['tasks']));
-    }
-    public function AddTask(Request $request){
-        $task = new Task();
-        $task->title = $request['title'];
-        $task->text = $request['text'];
-        $task->image = $this->uploadfile($request['image']);
-        $task->save();
-        return back()->with('success_action', 'Успешно добавлено');
-    }
-    public function DeleteTask($id){
-        $task = Task::find($id);
-        if ($task!=null) {
-            $this->deletefile($task->image);
-            $task->delete();
-            return back()->with('success_delete', 'Успешно удалено');
-        }else{
-            return 'nothing to delete';
-        }
-    }
-    public function EditTask($id){
-        $task = Task::find($id);
-        if ($task!=null) {
-            return view('action.edit_task', compact(['task']));
-        }else{
-            return 'nothing to edit';
-        }
-    }
-    public function SaveTask(Request $request){
-        $task = Task::find($request['id']);
-        if (isset($request['title'])) {
-            $task->title = $request['title'];
-        }
-        if (isset($request['image'])) {
-            $this->deletefile($task->image);
-            $task->image = $this->uploadfile($request['image']);
-        }
-        if (isset($request['text'])) {
-            $task->text = $request['text'];
-        }
-        $task->save(); 
-        return back()->with('success_save', 'Успешно сохранено');
-    } 
 
     public function GetConver($chat_id){
         $chat = Chat::find($chat_id);
@@ -471,9 +508,9 @@ class AdminController extends Controller
     }
     
     public function push($token, $from, $message){
-	//dd($message);
+	
         $client = new Clientt;
-	$client->request('POST','https://fcm.googleapis.com/fcm/send',[
+	    $client->request('POST','https://fcm.googleapis.com/fcm/send',[
                 'headers' => [
                     'Authorization' => 'key=AAAArtRfBGU:APA91bHEEG6qwHpfZG3IKfb5kUtErnYIwIrqjHJxP45cOYPQUlWtnssz2pL-YJiu0OIEg0nvodauqhU_gT-9hqJCuLmVEmE1C7Wp-IreXZoeG8sYBVV_WejayW-zcRardeojukcQaNqeNMvwpXsded8bN-5walZpZA',
                     'Content-Type'     => 'application/json',

@@ -1,37 +1,40 @@
 @extends('app')
-@section('active_quiz', 'active')
-@section('title', 'Экзамены')
+@section('active_schedule', 'active')
+@section('title', 'Расписание')
 @section('content')
 	<section class="content">
         <div class="container-fluid">
             <div class="block-header">
-                <h2>Экзамены</h2>
+                <h2>Расписание</h2>
                 <button type="button" class="btn btn-default waves-effect m-t-10" data-toggle="modal" data-target="#defaultModal">Добавить</button>
             </div>
             <!-- Hover Rows -->
             <div class="row clearfix">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="card">
-                    	@if(count($quizzes)!=0)
+                    	@if(count($schedules)!=0)
 	                        <div class="body table-responsive">
 	                            <table class="table table-hover">
 	                                <thead>
 	                                    <tr>
 	                                        <th>#</th>
-	                                        <th>Заголовок</th>
+	                                        <th>Шаг</th>
+	                                        <th>Задание</th>
+	                                        <th>Экзамен</th>
 	                                        <th>Действие</th>
 	                                    </tr>
 	                                </thead>
 	                                <tbody>
 	                                    <?php $i = 1?>
-	                                    @foreach($quizzes as $quiz)
+	                                    @foreach($schedules as $schedule)
 	                                        <tr>
 	                                            <th scope="row">{{$i++}}</th>
-	                                            <td>{{$quiz->title}}</td>
+	                                            <td>{{$schedule->step}}</td>
+	                                            <td>{{\App\Models\Task::find($schedule->task_id)->title}}</td>
+	                                            <td>{{\App\Models\Quiz::find($schedule->quiz_id)->title}}</td>
 	                                            <td>
-	                                            	<a href="{{route('EditQuiz', $quiz->id)}}" class="btn btn-primary waves-effect">Редактировать</a>		
-	                                            	<a href="{{route('Question', $quiz->id)}}" class="btn btn-success waves-effect">Вопросы</a>	
-	                                            	<a href="{{route('DeleteQuiz', $quiz->id)}}" class="btn btn-danger waves-effect">Удалить</a>
+	                                            	<a href="{{route('EditSchedule', $schedule->id)}}" class="btn btn-primary waves-effect">Редактировать</a>		
+	                                            	<a href="{{route('DeleteSchedule', $schedule->id)}}" class="btn btn-danger waves-effect">Удалить</a>
 	                                            </td>
 	                                        </tr>
 	                                    @endforeach
@@ -40,7 +43,7 @@
 	                        </div>
                         @else
                         	<div class="alert alert-danger">
-                        		There are no quizzes. If you want to add <button type="button" class="btn btn-default waves-effect m-t-10" data-toggle="modal" data-target="#defaultModal">Click here</button>
+                        		There are no schedule. If you want to add <button type="button" class="btn btn-default waves-effect m-t-10" data-toggle="modal" data-target="#defaultModal">Click here</button>
                         	</div>
                         @endif
                     </div>
@@ -53,9 +56,9 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="defaultModalLabel">Добавить экзамен</h4>
+                    <h4 class="modal-title" id="defaultModalLabel">Добавить расписание</h4>
                 </div>
-                <form action="{{route('AddQuiz')}}" method="post" id="myForm" enctype="multipart/form-data">
+                <form action="{{route('AddSchedule')}}" method="post" id="myForm" enctype="multipart/form-data">
                 	<div class="modal-body">
                 		@foreach ($errors->all() as $error)
 	                        <div class="message">
@@ -66,27 +69,37 @@
                     	<div class="col-sm-12">
                             <div class="form-group form-float">
                                 <div class="form-line">
-                                    <input type="text" class="form-control" name="title" required>
-                                    <label class="form-label">Заголовок</label>
+                                    <input type="number" class="form-control" name="step" required>
+                                    <label class="form-label">Шаг</label>
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="row col-sm-12">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <div class="form-line">
-                                        <input type="text" name="start_time" class="datetimepicker form-control" placeholder="Начало">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <div class="form-line">
-                                        <input type="text" name="end_time" class="datetimepicker form-control" placeholder="Конец">
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
+                        <div class="col-sm-12">
+                        	<div class="form-group">
+                        		<label for="">Задание</label>
+                                <div class="form-line">
+			                    	<select class="form-control" name="task_id" required>
+			                    		<option value="">Выберите</option>
+			                            @foreach(\App\Models\Task::all() as $task)
+			                            	<option value="{{$task->id}}">{{$task->title}}</option>
+			                            @endforeach
+			                        </select>
+			                    </div>
+	                        </div>
+                        </div>
+                        <div class="col-sm-12">
+                        	<div class="form-group">
+                        		<label for="">Экзамен</label>
+                                <div class="form-line">
+			                    	<select class="form-control" name="quiz_id" required>
+			                    		<option value="">Выберите</option>
+			                            @foreach(\App\Models\Quiz::all() as $quiz)
+			                            	<option value="{{$quiz->id}}">{{$quiz->title}}</option>
+			                            @endforeach
+			                        </select>
+			                    </div>
+	                        </div>
+                        </div>
 	                </div>
 	                <div class="modal-footer">
 	                    <button type="submit" class="btn btn-link waves-effect">Добавить</button>
