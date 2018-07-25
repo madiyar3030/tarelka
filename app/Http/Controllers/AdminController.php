@@ -255,7 +255,7 @@ class AdminController extends Controller
         return back()->with('success_save', 'Успешно сохранено');
     } 
     public function Schedule(){
-        $schedules = Schedule::orderBy('step', 'DESC')->get();
+        $schedules = Schedule::orderBy('step', 'ASC')->get();
         return view('action.schedule', compact(['schedules']));
     }
     public function AddSchedule(Request $request){

@@ -40,6 +40,7 @@ class ApiController extends Controller
             	$client = new Client();
             	$client->phone = $request['phone'];
             	$client->token = md5($request['phone'].'tarelka');
+                $client->last_action = Carbon::now()->subDays(7)->format('Y-m-d');
             	$client->save();
             	//send_sms($request['phone'], "Tarelka. Ваш пароль:".$code);
 
@@ -123,13 +124,13 @@ class ApiController extends Controller
                     $goal_c->goal_id = $goal->id;
                     $goal_c->save();
 
-                    $result['statusCode']= 200;
-                    $result['message']= 'Success!';
-                    $result['result']= $this->GetUser($user->id);
+                    $result['statusCode'] = 200;
+                    $result['message'] = 'Success!';
+                    $result['result'] = $this->GetUser($user->id);
                 }else{
-                    $result['statusCode']= 201;
-                    $result['message']= 'This goal is choosen';
-                    $result['result']= $this->GetUser($user->id);
+                    $result['statusCode'] = 201;
+                    $result['message'] = 'This goal is choosen';
+                    $result['result'] = $this->GetUser($user->id);
                 }
             }
             else{
@@ -438,8 +439,55 @@ class ApiController extends Controller
         }
         return response()->json($result, $result['statusCode']);
     }
-
     public function GetProgress(Request $request){
+        $rules = [
+            'token' => 'required|exists:clients,token',
+        ];
+        $validator = $this->validator($request->all(),$rules);
+        if($validator->fails()) {
+            $result['statusCode']= 400;
+            $result['message']= $validator->errors();
+            $result['result']= [];
+        }else {
+            $user = Client::where('token', $request['token'])->first();
+            $progresses = Progress::where('client_id', $user->id)->get();
+            if (count($progresses)!=0) {
+                $perc = [];
+                $points = DB::select('SELECT SUM(correct_answers) as correct, SUM(max_point) AS max, quiz_date as date FROM progresses WHERE client_id = '.$user->id.' GROUP BY quiz_date ORDER BY quiz_date ASC');
+                if (count($points)!=0) {
+                    for ($i=0; $i < count($points); $i++) { 
+                        $perc[$i]['correct'] = $points[$i]->{'correct'};
+                        $perc[$i]['max'] = $points[$i]->{'max'};
+                        $perc[$i]['percentage'] = (intval($points[$i]->{'correct'})/(intval($points[$i]->{'max'})))*100;
+                        $perc[$i]['date'] = $points[$i]->{'date'};
+                    }  
+                    $result['statusCode'] = 200;   
+                    $result['message'] = 'Success!';
+                    $result['result']['perc'] = $perc; 
+                }else{
+                    $result['statusCode'] = 404;   
+                    $result['message'] = 'Not found!';
+                    $result['result']['perc'] = null;                     
+                }
+                // $maxpoints = intval(DB::select('SELECT SUM(max_point) AS max FROM progresses WHERE client_id = '.$user->id.' AND quiz_date = "'.$request['date'].'"')[0]->{'max'});
+                // $corrects = intval(DB::select('SELECT SUM(correct_answers) AS correct FROM progresses WHERE client_id = '.$user->id.' AND quiz_date = "'.$request['date'].'"')[0]->{'correct'});
+                // if (($maxpoints == 0)&&($corrects == 0)) {
+                //     $result['result']['perc'] = 0;   
+                //     $result['statusCode'] = 200;    
+                // }else{
+                //     $perc = intval(($corrects/$maxpoints)*100);   
+                //     $result['result']['perc'] = $perc;   
+                //     $result['statusCode'] = 200;   
+                // }       
+            }else{
+                $result['statusCode'] = 404;
+                $result['message'] = 'Progress of '.$user->fio.' not found';
+                $result['result'] = 'null';                
+            }
+        }
+        return response()->json($result, $result['statusCode']);
+    }
+    public function GetProgressz(Request $request){
         $rules = [
             'token' => 'required|exists:clients,token',
             'date' => 'required|date|date_format:Y-m-d',
@@ -487,7 +535,7 @@ class ApiController extends Controller
                 $result['statusCode'] = 200;
                 $result['message'] = 'success';
                 foreach ($schedules as $schedule) {
-                    $result['result']['tasks'][] = $this->GetQuiz($schedule->quiz_id, $schedule->step, $user);
+                    $result['result']['quizzes'][] = $this->GetQuiz($schedule->quiz_id, $schedule->step, $user);
                 }                
             }else{
                 $result['statusCode'] = 404;
@@ -693,7 +741,7 @@ class ApiController extends Controller
             }else{
                 $second = false;
             }            
-            $third = Carbon::parse($user->last_action)->diffInDays(Carbon::now())>7;
+            $third = Carbon::parse($user->last_action)->diffInDays(Carbon::now())>6;
             if (($first)&&($second)&&($third)) {
                 $item['access'] = 1;
             }else{
@@ -707,6 +755,7 @@ class ApiController extends Controller
             $item['step'] = $first;
             $item['img_in7days'] = $second;
             $item['7days'] = $third;
+            $item['last_action_day'] = Carbon::parse($user->last_action)->format('Y-m-d');
         }else{
             $item = null;
         }
